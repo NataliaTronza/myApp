@@ -8,8 +8,8 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="apple-mobile-web-app-title" content="Стати">
-<title>Стати</title>
+<meta name="apple-mobile-web-app-title" content="Waymark">
+<title>Waymark</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
@@ -189,7 +189,7 @@ button{background:none;border:none;cursor:pointer}
 
 <div class="wrap">
   <div class="bar">
-    <div><div class="t">Стати</div><div class="s" id="hsub">—</div></div>
+    <div><div class="t">Waymark</div><div class="s" id="hsub">—</div></div>
     <div class="spacer"></div>
     <button class="ib" id="btnHist" title="Історія">◴</button>
     <button class="ib" id="btnSet" title="Налаштування">⚙</button>
@@ -197,7 +197,7 @@ button{background:none;border:none;cursor:pointer}
 
   <section class="page on" data-p="map">
     <div class="card radarcard">
-      <svg id="radar" viewBox="0 0 320 300"></svg>
+      <svg id="radar" viewBox="0 0 384 322"></svg>
     </div>
     <div class="card hero">
       <div class="txt">
@@ -522,7 +522,7 @@ function renderTop(){
     d.textContent=s.emo+' +'+lg[k];c.appendChild(d)})}
 
 function renderRadar(){
-  const svg=document.getElementById('radar'),cx=160,cy=148,R=88;
+  const svg=document.getElementById('radar'),cx=192,cy=156,R=92;
   const max=Math.max(4,...SK.map(k=>S.stats[k].lvl));
   const pt=(i,r)=>{const a=-Math.PI/2+i*Math.PI/3;return[cx+Math.cos(a)*r,cy+Math.sin(a)*r]};
   const F='font-family:Fredoka,sans-serif';
@@ -776,7 +776,7 @@ document.getElementById('btnSet').onclick=()=>{
     if(lines.length)S.fortunes=lines;
     save();render();close();toast('Збережено')};
   modal.querySelector('#sExp').onclick=()=>{const b=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
-    const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='staty-'+today()+'.json';
+    const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='waymark-'+today()+'.json';
     a.click();URL.revokeObjectURL(a.href);toast('Файл збережено')};
   modal.querySelector('#sImp').onclick=()=>{const i=document.createElement('input');i.type='file';i.accept='.json,application/json';
     i.onchange=()=>{const f=i.files[0];if(!f)return;const r=new FileReader();
