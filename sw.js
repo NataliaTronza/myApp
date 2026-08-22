@@ -1,4 +1,4 @@
-const CACHE = 'waymark-v8';
+const CACHE = 'waymark-v9';
 const ASSETS = [
   './',
   './index.html',

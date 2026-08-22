@@ -780,6 +780,16 @@ function checkAch(){
     if(!any)break}
   if(got.length){AQ.push(...got);save()}}
 
+/* Скидає тільки прогрес. Завдання, мої досягнення, налаштування й теми лишаються. */
+function resetProgress(){
+  SK.forEach(k=>{S.stats[k]={xp:0,lvl:1,total:0,streak:0,best:0,miss:0}});
+  S.log={};S.ach={};S.achInit=0;S.lastDay=null;
+  S.fortDay=null;S.fortText='';S.fortSeen=[];
+  (S.tasks||[]).forEach(t=>{t.doneOn=null;t.count=0});
+  (S.bonuses||[]).forEach(b=>{b.doneOn=null;b.count=0});
+  LVQ.length=0;AQ.length=0;
+  save();backfillAch();AQ.length=0;save()}
+
 function rollover(){
   const t=today();
   if(!S.lastDay){S.lastDay=t;save();return}
@@ -1334,7 +1344,12 @@ document.getElementById('btnSet').onclick=()=>{
   h+='<button class="mchip'+(S.autoAch!==0?' on':'')+'" data-v="1">показувати</button>';
   h+='<button class="mchip'+(S.autoAch===0?' on':'')+'" data-v="0">сховати</button></div>';
   h+='<p class="note">Це блок «Нагороди» за серії та рівні. Якщо сховати — бали за них усе одно нараховуються, просто список не заважає.</p></div>';
-  h+='<div class="f"><label>Скинути</label><button class="btn del" id="sReset" style="width:100%;flex:1">Стерти все</button></div>';
+  h+='<div class="f"><label>Почати спочатку</label><div class="mrow" style="margin-top:0">';
+  h+='<button class="btn" id="sResetProg">Скинути прогрес</button>';
+  h+='<button class="btn del" id="sReset">Стерти все</button></div>';
+  h+='<p class="note">«Скинути прогрес» обнуляє рівні, бали, серії, журнал і відмітки — '
+    +'але лишає твої завдання, мої досягнення й налаштування. «Стерти все» повертає застосунок '
+    +'до заводського стану: твої завдання й досягнення теж зникнуть.</p></div>';
   h+='<div class="mrow"><button class="btn" id="sClose">Закрити</button><button class="btn pri" id="sSave">Зберегти</button></div>';
   open(h);
   modal.querySelectorAll('#sTheme .thc').forEach(c=>c.onclick=()=>{
@@ -1370,8 +1385,15 @@ document.getElementById('btnSet').onclick=()=>{
         if(!['def','diff','abc'].includes(S.sort))S.sort='def';
         applyTheme();save();rollover();render();close();toast('Дані завантажено')}catch(e){toast('Файл не підходить')}};
       r.readAsText(f)};i.click()};
+  modal.querySelector('#sResetProg').onclick=()=>{
+    const nt=(S.tasks||[]).length,nb=(S.bonuses||[]).length;
+    if(!confirm('Обнулити рівні, бали, серії та всі відмітки?\n\n'
+      +'Лишаться: завдання ('+nt+'), мої досягнення ('+nb+'), теми й налаштування.\n'
+      +'Це не можна скасувати.'))return;
+    resetProgress();render();close();toast('Прогрес обнулено — з чистого аркуша')};
   modal.querySelector('#sReset').onclick=()=>{
-    if(!confirm('Стерти всі завдання й прогрес? Це не можна скасувати.'))return;
+    if(!confirm('Стерти ВСЕ — разом із твоїми завданнями й досягненнями?\n\n'
+      +'Застосунок повернеться до стартового набору завдань. Це не можна скасувати.'))return;
     localStorage.removeItem(KEY);S=load();applyTheme();save();render();close();toast('Готово')}};
 
 function sumToTen(){let s=0;for(let l=1;l<10;l++)s+=60+40*(l-1)+6*(l-1)*(l-1);return s}
