@@ -80,6 +80,25 @@ button{background:none;border:none;cursor:pointer}
 .fort .lb{font-family:var(--disp);font-size:11.5px;font-weight:500;color:var(--fort-lb);letter-spacing:.05em;text-transform:uppercase}
 .fort .tx{font-size:14px;font-weight:600;color:var(--fort-tx);line-height:1.5;margin-top:3px}
 
+.quest{background:var(--card);border:2px solid var(--accent);box-shadow:0 3px 0 var(--accent);
+  border-radius:var(--r);padding:12px 13px;margin-top:14px;display:flex;gap:10px;align-items:flex-start}
+.quest.qdone{border-color:var(--edge-2);box-shadow:0 3px 0 var(--edge-2);background:var(--soft)}
+.quest .ic{font-size:20px;line-height:1.25;flex:none}
+.quest .qb{flex:1;min-width:0}
+.quest .lb{font-family:var(--disp);font-size:11px;font-weight:500;color:var(--accent);
+  letter-spacing:.05em;text-transform:uppercase}
+.quest.qdone .lb{color:var(--dim)}
+.quest .tn{font-size:14.5px;font-weight:700;margin-top:4px;line-height:1.35}
+.quest .td{font-size:12.5px;color:var(--ink-2);line-height:1.5;margin-top:4px}
+.quest .qm{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:7px}
+.quest .qx{font-family:var(--disp);font-size:13px;font-weight:600;color:var(--accent);flex:none;margin-top:2px}
+.quest.qdone .qx{color:var(--dim)}
+.qrow{display:flex;align-items:center;gap:8px}
+.qlist{display:flex;flex-direction:column;gap:7px;max-height:46vh;overflow:auto;margin-top:4px;padding-right:2px}
+.qi{display:flex;gap:9px;align-items:flex-start;background:var(--field);border:2px solid var(--edge);
+  border-radius:11px;padding:9px 10px;cursor:pointer;text-align:left;width:100%}
+.qi .n1{font-size:13.5px;font-weight:700;line-height:1.35}
+.qi .n2{font-size:11.5px;color:var(--dim);font-weight:600;margin-top:3px}
 .sh{display:flex;align-items:center;gap:7px;padding:18px 4px 9px}
 .sh h2{font-family:var(--disp);font-size:16px;font-weight:600}
 .sh .n{font-size:11px;color:var(--dim);font-weight:700}
@@ -178,7 +197,6 @@ button{background:none;border:none;cursor:pointer}
 .lv-stat{font-family:var(--disp);font-size:13.5px;font-weight:500;margin-top:10px}
 .lv-fl{font-size:14px;line-height:1.62;margin-top:11px;color:var(--ink-2);font-weight:500;
   padding:0 4px;text-wrap:pretty}
-.lv-was{font-size:12px;color:var(--dim);margin-top:12px;font-weight:600}
 .lv-now{font-family:var(--disp);font-size:23px;font-weight:600;line-height:1.3;margin-top:4px}
 .lv-n{font-family:var(--disp);font-size:13px;color:var(--dim);margin-top:8px}
 
@@ -298,6 +316,7 @@ button{background:none;border:none;cursor:pointer}
   </section>
 
   <section class="page" data-p="tasks">
+    <div class="quest" id="questCard" style="display:none"></div>
     <div class="sh"><h2>Завдання</h2><span class="n" id="taskCount"></span><button id="btnNewTask">+ нове</button></div>
     <div class="filters" id="filters"></div>
     <div class="sortrow" id="sortRow"></div>
@@ -445,78 +464,79 @@ const RANKS={
 const FLAVOR={
 /* Своя фраза на кожен рівень. Індекс у масиві = рівень мінус один:
    [0] — рівень 1 (стартовий, у модалці не показується),
-   [1] — рівень 2, ... [9] — рівень 10. Для рівнів вище 10 береться [9]. */
+   [1] — рівень 2, ... [9] — рівень 10. Для рівнів вище 10 модалки немає, лише тост.
+   \n розділяє абзаци: останній рядок — це «Тепер ти …». */
  str:[
-  /* 1*/ "Маленький крок уже зроблено. Не обов'язково мчати вперед, щоб почати рухатися. Навіть равлики колись вирушають у дорогу.",
-  /* 2*/ "Ти вже помітно більше рухаєшся й даєш своєму тілу роботу. Схоже, сонечко більше не є твоїм єдиним планом на день.",
-  /* 3*/ "Ти не здалася, коли стало трохи складніше. Саме з таких маленьких «ще раз» і виростає сила.",
-  /* 4*/ "Твої зусилля вже складаються в хороший ритм. Енергії стає більше, а сидіти без діла, схоже, дедалі підозріліше.",
-  /* 5*/ "Ти стала впевненіше керувати своїм тілом і помічати, на що воно здатне. Рухи вже не просто виконуються, вони стають твоїми.",
-  /* 6*/ "Ти вже не просто підтримуєш себе в русі, а помітно набираєш темп. Твоя сила починає працювати разом зі спритністю.",
-  /* 7*/ "Сила більше не потребує зайвого шуму. Ти стаєш сильнішою, точнішою й упевненішою у своїх рухах.",
-  /* 8*/ "Ти вже накопичила чимало сили й довела, що можеш працювати на результат. Тут уже не просто «намагаюся». Тут є характер.",
-  /* 9*/ "Твоя сила більше не виглядає випадковістю. Ти побудувала її поступово, крок за кроком, і тепер її важко не помітити.",
-  /*10*/ "Ти пройшла шлях від перших сонних кроків до сили, яку вже відчуваєш у собі. Тепер рух, витривалість і спритність стали частиною твоєї історії."
+  /* 1*/ "Маленький крок уже зроблено. Не обов'язково мчати вперед, щоб почати рухатися. Навіть равлики колись вирушають у дорогу.\nТепер ти Сонний равлик. 🐌",
+  /* 2*/ "Ти вже помітно більше рухаєшся й даєш своєму тілу роботу. Схоже, сонечко більше не є твоїм єдиним планом на день.\nТепер ти Жвавий горобчик. 🐦",
+  /* 3*/ "Ти не здалася, коли стало трохи складніше. Саме з таких маленьких «ще раз» і виростає сила.\nТепер ти Впертий козлик. 🐐",
+  /* 4*/ "Твої зусилля вже складаються в хороший ритм. Енергії стає більше, а сидіти без діла, схоже, дедалі підозріліше.\nТепер ти Моторний єнот. 🦝",
+  /* 5*/ "Ти стала впевненіше керувати своїм тілом і помічати, на що воно здатне. Рухи вже не просто виконуються, вони стають твоїми.\nТепер ти Спритна кицька. 🐈",
+  /* 6*/ "Ти вже не просто підтримуєш себе в русі, а помітно набираєш темп. Твоя сила починає працювати разом зі спритністю.\nТепер ти Стрімка лисиця. 🦊",
+  /* 7*/ "Сила більше не потребує зайвого шуму. Ти стаєш сильнішою, точнішою й упевненішою у своїх рухах.\nТепер ти Граційна пантера. 🐆",
+  /* 8*/ "Ти вже накопичила чимало сили й довела, що можеш працювати на результат. Тут уже не просто «намагаюся». Тут є характер.\nТепер ти Сильна тигриця. 🐅",
+  /* 9*/ "Твоя сила більше не виглядає випадковістю. Ти побудувала її поступово, крок за кроком, і тепер її важко не помітити.\nТепер ти Могутня левиця. 🦁",
+  /*10*/ "Ти пройшла шлях від перших сонних кроків до сили, яку вже відчуваєш у собі. Тепер рух, витривалість і спритність стали частиною твоєї історії.\nТепер ти Легендарна кіцуне. 🦊✨"
  ],
  mind:[
-  /* 1*/ "Ти почала цікавитися новим і давати своєму мозку трохи більше їжі. А він, здається, вже просить добавку.",
-  /* 2*/ "Ти вже не просто помічаєш цікаві речі, а шукаєш відповіді на власні запитання. Хороший початок.",
-  /* 3*/ "Твоя цікавість вивела тебе за межі першої відповіді. Ти почала копати глибше, порівнювати й відкривати нове.",
-  /* 4*/ "Ти вже не просто збираєш цікаві факти. Ти вчишся розуміти, як вони пов'язані між собою.",
-  /* 5*/ "Ти почала дивитися на речі на кілька ходів уперед. Знання поступово перетворюються на інструмент, а не просто колекцію фактів.",
-  /* 6*/ "Ти не задовольняєшся першою відповіддю й дозволяєш собі подумати трохи довше. Іноді саме там і ховається найцікавіше.",
-  /* 7*/ "Ти накопичила вже достатньо знань, щоб бачити не лише окремі факти, а й картину ширше. Це вже зовсім інший рівень цікавості.",
-  /* 8*/ "Ти не обмежуєш свою цікавість однією галуззю. Різні знання починають зустрічатися між собою й створювати нові ідеї.",
-  /* 9*/ "Ти не просто накопичуєш знання, а вчишся дивитися на світ глибше й спокійніше. За цим рівнем уже стоїть справжній шлях.",
-  /*10*/ "Ти стільки разів обирала цікавість замість байдужості, що тепер за твоїми запитаннями можна було б відкрити окрему бібліотеку."
+  /* 1*/ "Ти почала цікавитися новим і давати своєму мозку трохи більше їжі. А він, здається, вже просить добавку.\nТепер ти Допитливе кошеня. 📖",
+  /* 2*/ "Ти вже не просто помічаєш цікаві речі, а шукаєш відповіді на власні запитання. Хороший початок.\nТепер ти Шукач. 🔎",
+  /* 3*/ "Твоя цікавість вивела тебе за межі першої відповіді. Ти почала копати глибше, порівнювати й відкривати нове.\nТепер ти Дослідник. 🗺️",
+  /* 4*/ "Ти вже не просто збираєш цікаві факти. Ти вчишся розуміти, як вони пов'язані між собою.\nТепер ти Учений. 📚",
+  /* 5*/ "Ти почала дивитися на речі на кілька ходів уперед. Знання поступово перетворюються на інструмент, а не просто колекцію фактів.\nТепер ти Стратег. ♟️",
+  /* 6*/ "Ти не задовольняєшся першою відповіддю й дозволяєш собі подумати трохи довше. Іноді саме там і ховається найцікавіше.\nТепер ти Мислитель. 💭",
+  /* 7*/ "Ти накопичила вже достатньо знань, щоб бачити не лише окремі факти, а й картину ширше. Це вже зовсім інший рівень цікавості.\nТепер ти Мудрець. 🦉",
+  /* 8*/ "Ти не обмежуєш свою цікавість однією галуззю. Різні знання починають зустрічатися між собою й створювати нові ідеї.\nТепер ти Полімат. 📚",
+  /* 9*/ "Ти не просто накопичуєш знання, а вчишся дивитися на світ глибше й спокійніше. За цим рівнем уже стоїть справжній шлях.\nТепер ти Сеннін. 🏔️",
+  /*10*/ "Ти стільки разів обирала цікавість замість байдужості, що тепер за твоїми запитаннями можна було б відкрити окрему бібліотеку.\nТепер ти Всезнавець. 🌠"
  ],
  ord:[
-  /* 1*/ "Ти зробила перші кроки до того, щоб хаос перестав отримувати безкоштовну оренду у твоєму просторі.",
-  /* 2*/ "Ти вже почала помічати дрібниці, які роблять простір приємнішим. Невеликий порядок теж порядок.",
-  /* 3*/ "Ти вже не просто прибираєш наслідки хаосу, а починаєш створювати систему, яка допомагає йому не повертатися.",
-  /* 4*/ "Твій простір стає не тільки впорядкованим, а й приємним. Видно, що тобі вже важливо, як усе виглядає і відчувається.",
-  /* 5*/ "Ти почала ставитися до свого простору не просто як до списку домашніх справ, а як до місця, про яке хочеться піклуватися.",
-  /* 6*/ "Ти вже вмієш поєднувати порядок із комфортом. Простір поступово починає працювати на тебе, а не вимагати постійної уваги.",
-  /* 7*/ "Ти добре попрацювала над своїм простором і вже відчуваєш у ньому більше контролю та затишку. Схоже, тут нарешті зрозуміли, хто головна.",
-  /* 8*/ "Ти створюєш простір, у якому хочеться жити, відпочивати й повертатися до себе. Це вже значно більше, ніж просто порядок.",
-  /* 9*/ "Ти навчилася помічати ті маленькі деталі, з яких складається відчуття дому. Тепер затишок тут явно під наглядом.",
-  /*10*/ "Ти пройшла шлях від боротьби з хаосом до створення простору, який відчувається твоїм. У ньому вже є не просто порядок, а характер."
+  /* 1*/ "Ти зробила перші кроки до того, щоб хаос перестав отримувати безкоштовну оренду у твоєму просторі.\nТепер ти Хаотик. 🌪️",
+  /* 2*/ "Ти вже почала помічати дрібниці, які роблять простір приємнішим. Невеликий порядок теж порядок.\nТепер ти Охайна. 🧹",
+  /* 3*/ "Ти вже не просто прибираєш наслідки хаосу, а починаєш створювати систему, яка допомагає йому не повертатися.\nТепер ти Організована. 📦",
+  /* 4*/ "Твій простір стає не тільки впорядкованим, а й приємним. Видно, що тобі вже важливо, як усе виглядає і відчувається.\nТепер ти Чепурна. ✨",
+  /* 5*/ "Ти почала ставитися до свого простору не просто як до списку домашніх справ, а як до місця, про яке хочеться піклуватися.\nТепер ти Дбайлива. 💗",
+  /* 6*/ "Ти вже вмієш поєднувати порядок із комфортом. Простір поступово починає працювати на тебе, а не вимагати постійної уваги.\nТепер ти Гармонійна. 🌿",
+  /* 7*/ "Ти добре попрацювала над своїм простором і вже відчуваєш у ньому більше контролю та затишку. Схоже, тут нарешті зрозуміли, хто головна.\nТепер ти Господиня. 🏡",
+  /* 8*/ "Ти створюєш простір, у якому хочеться жити, відпочивати й повертатися до себе. Це вже значно більше, ніж просто порядок.\nТепер ти Берегиня. 🌿",
+  /* 9*/ "Ти навчилася помічати ті маленькі деталі, з яких складається відчуття дому. Тепер затишок тут явно під наглядом.\nТепер ти Хранителька затишку. 🕯️",
+  /*10*/ "Ти пройшла шлях від боротьби з хаосом до створення простору, який відчувається твоїм. У ньому вже є не просто порядок, а характер.\nТепер ти Душа дому. 🏡"
  ],
  care:[
-  /* 1*/ "Ти почала приділяти собі трохи більше уваги. Маленький паросток турботи вже з'явився.",
-  /* 2*/ "Ти вже не просто згадуєш про себе час від часу. Твої маленькі ритуали поступово стають способом про себе дбати.",
-  /* 3*/ "Ти дала собі більше часу, уваги й турботи. Потроху повертається те відчуття, коли про себе не забуваєш.",
-  /* 4*/ "Твої маленькі ритуали вже складаються в помітну турботу про себе. І так, ти маєш повне право цим пишатися.",
-  /* 5*/ "Турбота вже не виглядає окремими пунктами у списку справ. Вона поступово стає частиною твого життя.",
-  /* 6*/ "Ти вкладаєш у себе дедалі більше уваги, і це вже помітно не лише у дзеркалі. З'являється особлива живість.",
-  /* 7*/ "Ти навчилася не чекати особливого приводу, щоб подбати про себе. Твоя турбота вже стала твоїм власним маленьким джерелом світла.",
-  /* 8*/ "Ти дедалі краще знаєш, що тобі підходить і чого потребує твоє тіло. Турбота про себе стає не обов'язком, а вибором.",
-  /* 9*/ "У твоїй турботі вже є легкість. Ти не просто робиш для себе хороші речі, а вмієш вплітати їх у своє життя природно.",
-  /*10*/ "Ти пройшла шлях від маленької уваги до себе до справжнього мистецтва турботи. Тепер у ньому є і звичка, і знання, і твій власний стиль."
+  /* 1*/ "Ти почала приділяти собі трохи більше уваги. Маленький паросток турботи вже з'явився.\nТепер ти Паросток. 🌱",
+  /* 2*/ "Ти вже не просто згадуєш про себе час від часу. Твої маленькі ритуали поступово стають способом про себе дбати.\nТепер ти Плекана. 🌿",
+  /* 3*/ "Ти дала собі більше часу, уваги й турботи. Потроху повертається те відчуття, коли про себе не забуваєш.\nТепер ти Відновлена. 🌱",
+  /* 4*/ "Твої маленькі ритуали вже складаються в помітну турботу про себе. І так, ти маєш повне право цим пишатися.\nТепер ти Доглянута. ✨",
+  /* 5*/ "Турбота вже не виглядає окремими пунктами у списку справ. Вона поступово стає частиною твого життя.\nТепер ти Квітуча. 🌸",
+  /* 6*/ "Ти вкладаєш у себе дедалі більше уваги, і це вже помітно не лише у дзеркалі. З'являється особлива живість.\nТепер ти Іскриста. ✨",
+  /* 7*/ "Ти навчилася не чекати особливого приводу, щоб подбати про себе. Твоя турбота вже стала твоїм власним маленьким джерелом світла.\nТепер ти Сяюча. 💎",
+  /* 8*/ "Ти дедалі краще знаєш, що тобі підходить і чого потребує твоє тіло. Турбота про себе стає не обов'язком, а вибором.\nТепер ти Впевнена. 👑",
+  /* 9*/ "У твоїй турботі вже є легкість. Ти не просто робиш для себе хороші речі, а вмієш вплітати їх у своє життя природно.\nТепер ти Граційна. 🦢",
+  /*10*/ "Ти пройшла шлях від маленької уваги до себе до справжнього мистецтва турботи. Тепер у ньому є і звичка, і знання, і твій власний стиль.\nТепер ти Довершена. ✨"
  ],
  art:[
-  /* 1*/ "У твоїй голові вже відбувається достатньо цікавого, щоб відкрити там окрему виставку. Перші ідеї вже з'являються.",
-  /* 2*/ "Ти не просто уявляєш щось цікаве, а дозволяєш собі мріяти про те, чого ще немає. Саме з цього часто все й починається.",
-  /* 3*/ "Ти дедалі частіше знаходиш ідеї, які хочеться забрати із собою й перетворити на щось власне. Схоже, натхнення вже знає твою адресу.",
-  /* 4*/ "Ти не лише ловиш натхнення, а й починаєш сама його створювати. Деякі ідеї вже могли б надихнути когось іще.",
-  /* 5*/ "Ти перестала чекати ідеального моменту й почала пробувати. А творчість дуже любить людей, які не бояться сказати: «А що, як зробити ось так?»",
-  /* 6*/ "Твої експерименти поступово складаються у власний спосіб самовираження. Ти вже не просто пробуєш різне, ти створюєш.",
-  /* 7*/ "Твої ідеї вже не залишаються просто ідеями. Ти створюєш речі, у яких є твій голос, твій вибір і твій почерк.",
-  /* 8*/ "Ти не боїшся відходити від готових рішень і шукати власний шлях. Нові ідеї вже не здаються тобі дивними. Вони здаються перспективними.",
-  /* 9*/ "Ти вже не просто створюєш. Ти відточуєш свою майстерність, помічаєш деталі й дедалі краще розумієш своє ремесло.",
-  /*10*/ "Ти пройшла шлях від фантазії та перших експериментів до справжньої майстерності. Тепер твої навички дають тобі не тільки можливість створювати, а й свободу творити по-своєму."
+  /* 1*/ "У твоїй голові вже відбувається достатньо цікавого, щоб відкрити там окрему виставку. Перші ідеї вже з'являються.\nТепер ти Фантазерка. 🌈",
+  /* 2*/ "Ти не просто уявляєш щось цікаве, а дозволяєш собі мріяти про те, чого ще немає. Саме з цього часто все й починається.\nТепер ти Мріяниця. 🌙",
+  /* 3*/ "Ти дедалі частіше знаходиш ідеї, які хочеться забрати із собою й перетворити на щось власне. Схоже, натхнення вже знає твою адресу.\nТепер ти Натхненниця. ✨",
+  /* 4*/ "Ти не лише ловиш натхнення, а й починаєш сама його створювати. Деякі ідеї вже могли б надихнути когось іще.\nТепер ти Муза. 💫",
+  /* 5*/ "Ти перестала чекати ідеального моменту й почала пробувати. А творчість дуже любить людей, які не бояться сказати: «А що, як зробити ось так?»\nТепер ти Експериментаторка. 🧪",
+  /* 6*/ "Твої експерименти поступово складаються у власний спосіб самовираження. Ти вже не просто пробуєш різне, ти створюєш.\nТепер ти Мисткиня. 🎨",
+  /* 7*/ "Твої ідеї вже не залишаються просто ідеями. Ти створюєш речі, у яких є твій голос, твій вибір і твій почерк.\nТепер ти Авторка. ✍️",
+  /* 8*/ "Ти не боїшся відходити від готових рішень і шукати власний шлях. Нові ідеї вже не здаються тобі дивними. Вони здаються перспективними.\nТепер ти Новаторка. 💡",
+  /* 9*/ "Ти вже не просто створюєш. Ти відточуєш свою майстерність, помічаєш деталі й дедалі краще розумієш своє ремесло.\nТепер ти Шокунін. 🇯🇵",
+  /*10*/ "Ти пройшла шлях від фантазії та перших експериментів до справжньої майстерності. Тепер твої навички дають тобі не тільки можливість створювати, а й свободу творити по-своєму.\nТепер ти Віртуозка. 🎼"
  ],
  grit:[
-  /* 1*/ "Ти зробила перші кроки до того, щоб краще бути поруч із собою навіть тоді, коли шлях не зовсім рівний.",
-  /* 2*/ "Ти вже вчишся не втрачати рівновагу через кожну маленьку бурю. Це ще тільки початок, але фундамент уже є.",
-  /* 3*/ "Ти продовжувала працювати над собою навіть тоді, коли це не було найпростішою справою у світі. Так і формується внутрішня міцність.",
-  /* 4*/ "Ти навчилася не вимагати від себе миттєвих результатів і продовжувати шлях у своєму темпі. Це теж сила.",
-  /* 5*/ "Ти не можеш наказати всім бурям оминути тебе. Зате вже вчишся проходити крізь них і залишатися на своєму боці.",
-  /* 6*/ "Ти дедалі краще знаходиш свою точку рівноваги, навіть коли навколо все трохи хитається.",
-  /* 7*/ "Ти вже знаєш, що спокій не означає відсутність хвиль. Ти вчишся залишатися собою навіть тоді, коли море неспокійне.",
-  /* 8*/ "Ти стала уважнішою до своїх думок, почуттів і реакцій. Помічати себе вже не менш важливо, ніж змінювати себе.",
-  /* 9*/ "Ти пройшла чималий шлях до глибшого розуміння себе. Деякі речі вже не потрібно долати силою, бо ти навчилася дивитися на них інакше.",
-  /*10*/ "Ти багато зробила, щоб навчитися залишатися собою крізь зміни, хвилювання й невизначеність. Тепер у твоєму спокої є справжня сила."
+  /* 1*/ "Ти зробила перші кроки до того, щоб краще бути поруч із собою навіть тоді, коли шлях не зовсім рівний.\nТепер ти Мандрівниця. 🌊",
+  /* 2*/ "Ти вже вчишся не втрачати рівновагу через кожну маленьку бурю. Це ще тільки початок, але фундамент уже є.\nТепер ти Стійка. 🪨",
+  /* 3*/ "Ти продовжувала працювати над собою навіть тоді, коли це не було найпростішою справою у світі. Так і формується внутрішня міцність.\nТепер ти Загартована. 🔥",
+  /* 4*/ "Ти навчилася не вимагати від себе миттєвих результатів і продовжувати шлях у своєму темпі. Це теж сила.\nТепер ти Витривала. 🌿",
+  /* 5*/ "Ти не можеш наказати всім бурям оминути тебе. Зате вже вчишся проходити крізь них і залишатися на своєму боці.\nТепер ти Підкорювачка бурі. 🌩️",
+  /* 6*/ "Ти дедалі краще знаходиш свою точку рівноваги, навіть коли навколо все трохи хитається.\nТепер ти Врівноважена. 🧭",
+  /* 7*/ "Ти вже знаєш, що спокій не означає відсутність хвиль. Ти вчишся залишатися собою навіть тоді, коли море неспокійне.\nТепер ти Спокійна серед хвиль. 🌊",
+  /* 8*/ "Ти стала уважнішою до своїх думок, почуттів і реакцій. Помічати себе вже не менш важливо, ніж змінювати себе.\nТепер ти Усвідомлена. 🧘",
+  /* 9*/ "Ти пройшла чималий шлях до глибшого розуміння себе. Деякі речі вже не потрібно долати силою, бо ти навчилася дивитися на них інакше.\nТепер ти Просвітлена. ✨",
+  /*10*/ "Ти багато зробила, щоб навчитися залишатися собою крізь зміни, хвилювання й невизначеність. Тепер у твоєму спокої є справжня сила.\nТепер ти Незворушна. 🪷"
  ]
 };
 
@@ -645,13 +665,33 @@ function rankOf(k,lvl){const a=RANKS[k],s=a[Math.min(a.length,Math.max(1,lvl))-1
   const i=s.indexOf(' ');return{emo:s.slice(0,i),name:s.slice(i+1),full:s}}
 
 const blank={v:3,lastDay:null,penalty:5,pace:1,theme:'sky',sort:'def',sortDir:1,
-  tasks:[],bonuses:[],log:{},stats:{},ach:{},achInit:0,autoAch:1,
+  tasks:[],bonuses:[],quests:[],log:{},stats:{},ach:{},achInit:0,autoAch:1,
+  questMul:1.5,questSrc:'mix',questBias:0,questDay:null,questRef:null,questProg:0,questPaid:0,questSeen:[],
   fortunes:FORTUNES.slice(),fortDay:null,fortText:'',fortSeen:[]};
 SK.forEach(k=>blank.stats[k]={xp:0,lvl:1,total:0,streak:0,best:0,miss:0});
 let S=load(),filter='all',LVQ=[],AQ=[];
 if(!THEMES[S.theme])S.theme='sky';
 if(!['def','diff','abc'].includes(S.sort))S.sort='def';
 if(S.sortDir!==-1)S.sortDir=1;
+
+/* ---------- квест дня ---------- */
+function seedQuests(){
+  const Q=(emo,name,desc,stats,diff,goal)=>({id:uid(),emo,name,desc,stats,diff,goal:goal||1,taskId:null});
+  return [
+    Q('🌱','Зелений день','Приділити увагу рослині: полити, пересадити, очистити листя або перевірити її стан.',['ord'],'high'),
+    Q('✍️','100 слів','Написати 100 слів про будь-яку думку, подію чи вигадану історію.',['art','grit'],'mid'),
+    Q('💭','Розмова із собою','Записати три речі, які зараз займають твої думки.',['grit'],'low'),
+    Q('💃','Тіло в рух','Танцювати 15 хвилин.',['str','grit'],'mid'),
+    Q('🔍','Дослідити своє','Знайти відповідь на питання, яке давно було цікаво перевірити.',['mind'],'mid'),
+    Q('🍳','Гарний початок','Приготувати гарний сніданок.',['art'],'high'),
+    Q('🧺','П\'ять речей','Прибрати або повернути на місце рівно п\'ять речей.',['ord'],'low'),
+    Q('♻️','No waste','Приготувати щось із продуктів, які скоро можуть зіпсуватися.',['ord'],'high'),
+    Q('✨','Крок уперед','Зробити якесь завдання зі списку на місяць.',['grit'],'high'),
+    Q('🌳','Вийти з дому','Прогулянка щонайменше 10 хвилин.',['grit'],'low'),
+    Q('🌌','Космічний гість','Дізнатися щось про одну планету, зорю або космічне явище.',['mind'],'low'),
+    Q('🕯️','Затишний вечір','Підготувати кімнату до вечора так, щоб у ній було особливо приємно.',['ord','grit'],'mid'),
+    Q('💆','День турботи','Зробити три маленькі речі для свого тіла.',['care'],'high',3)
+  ]}
 
 function seed(){const T=(n,d,st,m)=>({id:uid(),name:n,diff:d,stats:st,multi:!!m,once:false,doneOn:null,count:0});
  return[T('Тренування / присідання','mid',['str']),T('Йога','low',['str','grit']),T('10 000 кроків','mid',['str']),
@@ -675,11 +715,17 @@ function load(){
     if(!m.ach)m.ach={};
     if(!Array.isArray(m.bonuses))m.bonuses=[];
     m.bonuses.forEach(b=>{if(b.repeat==null)b.repeat=false;if(b.count==null)b.count=0});
+    if(!Array.isArray(m.quests)||!m.quests.length)m.quests=seedQuests();
+    if(m.questMul==null)m.questMul=1.5;
+    if(!m.questSrc)m.questSrc='mix';
+    if(m.questBias==null)m.questBias=0;
+    if(!Array.isArray(m.questSeen))m.questSeen=[];
+    (m.tasks||[]).forEach(t=>{if(t.quest==null)t.quest=true});
     if(m.autoAch==null)m.autoAch=1;
     if(!m.fortunes||!m.fortunes.length)m.fortunes=FORTUNES.slice();
     if(!m.fortSeen)m.fortSeen=[];
     return m}}catch(e){}
-  const d=structuredClone(blank);d.tasks=seed();return d}
+  const d=structuredClone(blank);d.tasks=seed();d.quests=seedQuests();return d}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Не вдалося зберегти')}}
 function uid(){return Math.random().toString(36).slice(2,10)}
 function today(){const d=new Date();d.setHours(12,0,0,0);return d.toISOString().slice(0,10)}
@@ -787,8 +833,136 @@ function resetProgress(){
   S.fortDay=null;S.fortText='';S.fortSeen=[];
   (S.tasks||[]).forEach(t=>{t.doneOn=null;t.count=0});
   (S.bonuses||[]).forEach(b=>{b.doneOn=null;b.count=0});
+  S.questDay=null;S.questRef=null;S.questProg=0;S.questPaid=0;S.questSeen=[];
   LVQ.length=0;AQ.length=0;
   save();backfillAch();AQ.length=0;save()}
+
+function questMul(){const m=+S.questMul;return m>0?m:1}
+function questTotal(r){return r?Math.ceil(DF[r.diff].xp*questMul()):0}
+function questTask(r){return r&&r.kind==='link'?(S.tasks||[]).find(t=>t.id===r.taskId):null}
+function questBonus(r){const t=questTask(r);if(!t)return 0;
+  return Math.max(0,questTotal(r)-DF[t.diff].xp)}
+function questEligible(t){return t.quest!==false&&!t.doneOn}
+
+function questCandidates(){
+  const mine=[],auto=[];
+  (S.quests||[]).forEach(q=>{
+    if(q.taskId){const t=(S.tasks||[]).find(x=>x.id===q.taskId);
+      if(!t||!questEligible(t))return;
+      mine.push({key:'q:'+q.id,kind:'link',qid:q.id,taskId:t.id,emo:q.emo||'⭐',
+        name:q.name||t.name,desc:q.desc||'',stats:t.stats.slice(),diff:q.diff||t.diff,goal:1})}
+    else mine.push({key:'q:'+q.id,kind:'own',qid:q.id,taskId:null,emo:q.emo||'⭐',
+      name:q.name,desc:q.desc||'',stats:(q.stats||[]).slice(),diff:q.diff,goal:Math.max(1,q.goal||1)})});
+  (S.tasks||[]).forEach(t=>{if(!questEligible(t))return;
+    auto.push({key:'t:'+t.id,kind:'link',qid:null,taskId:t.id,emo:'📋',
+      name:t.name,desc:'',stats:t.stats.slice(),diff:t.diff,goal:1})});
+  return {mine,auto}}
+
+/* Чим менше бали за останні 7 днів — тим більша вага. Діапазон 1..3. */
+function statWeights(){
+  const raw={},days=[];
+  for(let i=0;i<7;i++)days.push(shiftDay(today(),-i));
+  SK.forEach(k=>{let v=0;days.forEach(d=>{const x=(S.log[d]||{})[k]||0;if(x>0)v+=x});raw[k]=v});
+  const vals=SK.map(k=>raw[k]),mx=Math.max(...vals);
+  const w={};SK.forEach(k=>{w[k]=mx>0?1+2*(1-raw[k]/mx):2});
+  return w}
+
+function questWeight(x,w){
+  const ks=(x.stats||[]).filter(k=>w[k]!=null);
+  if(!ks.length)return 1;
+  return ks.reduce((a,k)=>a+w[k],0)/ks.length}
+
+function weightedPick(pool){
+  if(!S.questBias)return pool[Math.floor(Math.random()*pool.length)];
+  const w=statWeights(),ws=pool.map(x=>questWeight(x,w));
+  let sum=ws.reduce((a,b)=>a+b,0);
+  if(!(sum>0))return pool[Math.floor(Math.random()*pool.length)];
+  let r=Math.random()*sum;
+  for(let i=0;i<pool.length;i++){r-=ws[i];if(r<=0)return pool[i]}
+  return pool[pool.length-1]}
+
+function pickQuest(force){
+  if(!force&&S.questDay===today()&&S.questRef)return false;
+  const {mine,auto}=questCandidates();
+  const src=S.questSrc||'mix';
+  let bag;
+  if(src==='mine')bag=mine.length?mine:auto;
+  else if(src==='tasks')bag=auto.length?auto:mine;
+  else{const wantMine=Math.random()<0.6;
+    bag=(wantMine?mine:auto);if(!bag.length)bag=wantMine?auto:mine}
+  if(!bag||!bag.length){S.questDay=today();S.questRef=null;S.questProg=0;S.questPaid=0;save();return false}
+  const seen=(S.questSeen||[]).slice(-Math.max(4,Math.floor(bag.length*0.7)));
+  let pool=bag.filter(x=>!seen.includes(x.key));
+  if(!pool.length)pool=bag;
+  const r=weightedPick(pool);
+  S.questDay=today();S.questRef=r;S.questProg=0;S.questPaid=0;
+  S.questSeen=[...(S.questSeen||[]),r.key].slice(-60);
+  save();return true}
+
+/* нараховує/знімає різницю так, щоб виплачено було рівно stepPaid */
+function questPayTo(prog){
+  const r=S.questRef;if(!r)return;
+  const total=questTotal(r),goal=Math.max(1,r.goal||1);
+  const want=Math.round(total*Math.min(Math.max(prog,0),goal)/goal);
+  const diff=want-(S.questPaid||0);
+  if(diff)award(r.stats,diff);
+  S.questProg=prog;S.questPaid=want}
+
+function questStep(dir){
+  const r=S.questRef;if(!r||r.kind!=='own')return;
+  const goal=Math.max(1,r.goal||1),n=Math.min(goal,Math.max(0,(S.questProg||0)+dir));
+  if(n===(S.questProg||0))return;
+  const before=S.questPaid||0;
+  questPayTo(n);save();render();
+  const d=(S.questPaid||0)-before;
+  if(d>0)toast('+'+d+' · квест'+(goal>1?' '+n+' з '+goal:''));
+  else if(d<0)toast('Знято '+(-d))}
+
+/* бонус за квест, привʼязаний до завдання */
+function questSyncLink(){
+  const r=S.questRef;if(!r||r.kind!=='link')return;
+  const t=questTask(r);
+  const on=!!(t&&t.doneOn);
+  if(on&&!(S.questProg>0)){const b=questBonus(r);if(b)award(t.stats,b);
+    S.questProg=1;S.questPaid=b;if(b)setTimeout(()=>toast('+'+b+' бонус за квест дня'),260)}
+  else if(!on&&S.questProg>0){if(S.questPaid)award(r.stats,-S.questPaid);
+    S.questProg=0;S.questPaid=0}}
+
+function renderQuest(){
+  const c=document.getElementById('questCard'),r=S.questRef;
+  if(!r){c.style.display='none';return}
+  c.style.display='';
+  const goal=Math.max(1,r.goal||1),prog=Math.min(goal,S.questProg||0);
+  const done=prog>=goal;
+  c.classList.toggle('qdone',done);
+  const t=questTask(r),total=questTotal(r);
+  let h='<div class="ic">'+esc(r.emo||'⭐')+'</div><div class="qb">';
+  h+='<div class="lb">Квест дня'+(questMul()!==1?' · ×'+String(questMul()).replace('.',',') :'')+'</div>';
+  h+='<div class="tn">'+esc(r.name)+'</div>';
+  if(r.desc)h+='<div class="td">'+esc(r.desc)+'</div>';
+  else if(r.kind==='link'&&t)h+='<div class="td">Завдання зі списку — сьогодні дає підвищені бали.</div>';
+  h+='<div class="qm">';
+  (r.stats||[]).forEach(k=>{const st=ST[k];if(!st)return;
+    h+='<span class="pill" style="color:'+st.color+';background:'+st.soft+'">'+st.emo+' '+st.name+'</span>'});
+  if(r.kind==='link'&&t)h+='<span class="dlab">'+DF[t.diff].label+' +'+questBonus(r)+' бонус</span>';
+  else h+='<span class="dlab">'+DF[r.diff].label+(goal>1?' · '+goal+' кроки':'')+'</span>';
+  h+='</div></div>';
+  if(r.kind==='own'){
+    h+='<div class="qrow">';
+    if(goal>1){
+      if(prog)h+='<button class="mn" id="qMinus" title="Крок назад">−</button>';
+      h+='<button class="cnt'+(prog?' has':'')+'" id="qPlus">'+(prog?prog+'/'+goal:'+')+'</button>'}
+    else h+='<button class="check" id="qPlus">✓</button>';
+    h+='</div>'}
+  else h+='<div class="qx">'+(S.questProg>0?'✓ +'+(S.questPaid||0):'+'+questBonus(r))+'</div>';
+  c.innerHTML=h;
+  const pl=c.querySelector('#qPlus');
+  if(pl){const first=ST[(r.stats||[])[0]];
+    if(prog&&first){pl.style.borderColor=first.color;pl.style.background=goal>1?first.soft:first.color;
+      if(goal>1)pl.style.color=first.color}
+    pl.onclick=()=>questStep(goal>1?1:(done?-1:1))}
+  const mn=c.querySelector('#qMinus');
+  if(mn)mn.onclick=()=>questStep(-1)}
 
 function rollover(){
   const t=today();
@@ -841,6 +1015,7 @@ function showFortuneModal(){
 function todayLog(){return S.log[today()]||Object.fromEntries(SK.map(k=>[k,0]))}
 function render(){syncStreaks();checkAch();
   renderTop();renderRadar();renderFortune();renderWeek();renderGrid();
+  questSyncLink();renderQuest();
   renderFilters();renderSort();renderTasks();renderMyAch();renderAch();flushLevels()}
 
 /* ---------- тижневий підсумок ---------- */
@@ -1001,6 +1176,119 @@ function openBonus(b){
     else{b.count=0;if(had&&!b.doneOn)b.doneOn=today()}
     if(isNew)S.bonuses.unshift(b);
     save();render();close()}}
+
+function openQuests(){
+  const list=S.quests||[];
+  let h='<h3>Мої квести</h3>';
+  h+='<p class="note">Звідси беруться квести дня. Крім них застосунок сам підкидає твої звичайні '
+    +'завдання — ті, у яких увімкнено «може бути квестом».</p>';
+  h+='<div class="qlist">';
+  if(!list.length)h+='<div class="empty">Поки порожньо.</div>';
+  list.forEach(q=>{
+    const t=q.taskId?(S.tasks||[]).find(x=>x.id===q.taskId):null;
+    const nm=q.name||(t?t.name:'—');
+    let sub;
+    if(q.taskId)sub=t?('зі списку · '+t.name):'зі списку · завдання видалено';
+    else sub=(q.stats||[]).map(k=>ST[k]?ST[k].emo+' '+ST[k].name:'').filter(Boolean).join(' · ');
+    const df=q.diff||(t?t.diff:'mid');
+    sub+=(sub?' · ':'')+DF[df].label;
+    if((q.goal||1)>1)sub+=' · '+q.goal+' кроки';
+    h+='<button class="qi" data-id="'+q.id+'"><span class="ic" style="font-size:18px">'+esc(q.emo||'⭐')
+      +'</span><span style="flex:1;min-width:0"><span class="n1">'+esc(nm)+'</span>'
+      +'<div class="n2">'+esc(sub)+'</div></span></button>'});
+  h+='</div>';
+  h+='<div class="mrow"><button class="btn" id="qBack">Назад</button>'
+    +'<button class="btn pri" id="qNew">+ квест</button></div>';
+  open(h);
+  modal.querySelector('#qBack').onclick=openSettings;
+  modal.querySelector('#qNew').onclick=()=>openQuest(null);
+  modal.querySelectorAll('.qi').forEach(b=>b.onclick=()=>
+    openQuest((S.quests||[]).find(x=>x.id===b.dataset.id)))}
+
+function openQuest(q){
+  const isNew=!q;
+  q=q||{id:uid(),emo:'⭐',name:'',desc:'',stats:[filter==='all'?'grit':filter],diff:'mid',goal:1,taskId:null};
+  const dr={emo:q.emo||'⭐',stats:[...(q.stats||[])],diff:q.diff||'mid',taskId:q.taskId||null};
+  let h='<h3>'+(isNew?'Новий квест':'Квест')+'</h3>';
+  h+='<div class="f"><label>Тип</label><div class="mchips" id="qType">';
+  h+='<button class="mchip'+(dr.taskId?'':' on')+'" data-v="new">нове</button>';
+  h+='<button class="mchip'+(dr.taskId?' on':'')+'" data-v="link">зі списку</button></div></div>';
+  h+='<div class="f" id="qTaskWrap"><label>Яке завдання</label><select id="qTask" style="width:100%">';
+  h+='<option value="">— вибери —</option>';
+  (S.tasks||[]).forEach(t=>h+='<option value="'+t.id+'"'+(dr.taskId===t.id?' selected':'')+'>'
+    +esc(t.name)+'</option>');
+  h+='</select></div>';
+  h+='<div class="f"><label id="qNameLb">Назва</label><input type="text" id="qName" value="'+esc(q.name)+'"></div>';
+  h+='<div class="f"><label>Опис</label><input type="text" id="qDesc" value="'+esc(q.desc||'')
+    +'" placeholder="Що саме зробити"></div>';
+  h+='<div class="f"><label>Значок</label><div class="mchips" id="qEmo">';
+  ['⭐','🌱','✍️','💭','💃','🔍','🍳','🧺','♻️','✨','🌳','🌌','🕯️','💆'].forEach(e=>
+    h+='<button class="mchip'+(dr.emo===e?' on':'')+'" data-e="'+e+'">'+e+'</button>');
+  h+='</div><input type="text" id="qEmoIn" maxlength="4" value="'+esc(dr.emo)
+    +'" style="margin-top:7px;width:74px;text-align:center"></div>';
+  h+='<div class="f" id="qStatWrap"><label>Стати</label><div class="mchips" id="qStats">';
+  STATS.forEach(x=>h+='<button class="mchip'+(dr.stats.includes(x.k)?' on':'')+'" data-k="'+x.k+'" style="'
+    +(dr.stats.includes(x.k)?'color:'+x.color+';border-color:'+x.line+';background:'+x.soft:'')+'">'
+    +x.emo+' '+x.name+'</button>');
+  h+='</div></div>';
+  h+='<div class="f"><label>Складність</label><div class="mchips" id="qDiff">';
+  DIFF.forEach(d=>h+='<button class="mchip'+(dr.diff===d.k?' on':'')+'" data-k="'+d.k+'">'
+    +d.label+' · '+d.xp+'</button>');
+  h+='</div><p class="note" id="qDiffNote"></p></div>';
+  h+='<div class="f" id="qGoalWrap"><label>Скільки разів відмітити</label>'
+    +'<input type="number" id="qGoal" min="1" max="10" value="'+Math.max(1,q.goal||1)+'">'
+    +'<p class="note">1 — звичайний квест. Більше — бали діляться на кроки.</p></div>';
+  h+='<div class="mrow">'+(isNew?'':'<button class="btn del" id="qDel">✕</button>')
+    +'<button class="btn" id="qCancel">Назад</button><button class="btn pri" id="qSave">Зберегти</button></div>';
+  open(h);
+  const wrapT=modal.querySelector('#qTaskWrap'),wrapS=modal.querySelector('#qStatWrap'),
+        wrapG=modal.querySelector('#qGoalWrap'),sel=modal.querySelector('#qTask'),
+        nameLb=modal.querySelector('#qNameLb'),nameIn=modal.querySelector('#qName'),
+        note=modal.querySelector('#qDiffNote');
+  const sync=()=>{
+    const link=!!dr.taskId||modal.querySelector('#qType .mchip[data-v=link]').classList.contains('on');
+    wrapT.style.display=link?'':'none';
+    wrapS.style.display=link?'none':'';
+    wrapG.style.display=link?'none':'';
+    nameLb.textContent=link?'Уточнення на сьогодні — можна лишити порожнім':'Назва';
+    nameIn.placeholder=link?'Наприклад: сьогодні саме кухня':'';
+    note.textContent='Квест дасть '+Math.ceil(DF[dr.diff].xp*questMul())+' балів при множнику ×'
+      +String(questMul()).replace('.',',')+'.'};
+  modal.querySelectorAll('#qType .mchip').forEach(c=>c.onclick=()=>{
+    modal.querySelectorAll('#qType .mchip').forEach(x=>x.classList.toggle('on',x===c));
+    if(c.dataset.v==='new'){dr.taskId=null;sel.value=''}
+    else if(!dr.taskId&&sel.value)dr.taskId=sel.value;
+    sync()});
+  sel.onchange=()=>{dr.taskId=sel.value||null;sync()};
+  const emoIn=modal.querySelector('#qEmoIn');
+  modal.querySelectorAll('#qEmo .mchip').forEach(c=>c.onclick=()=>{dr.emo=c.dataset.e;emoIn.value=dr.emo;
+    modal.querySelectorAll('#qEmo .mchip').forEach(x=>x.classList.toggle('on',x===c))});
+  emoIn.oninput=()=>{dr.emo=emoIn.value.trim()||'⭐'};
+  modal.querySelectorAll('#qStats .mchip').forEach(c=>c.onclick=()=>{
+    const k=c.dataset.k,x=ST[k],i=dr.stats.indexOf(k);
+    if(i>-1){if(dr.stats.length===1)return;dr.stats.splice(i,1);c.classList.remove('on');c.style.cssText=''}
+    else{dr.stats.push(k);c.classList.add('on');c.style.color=x.color;c.style.borderColor=x.line;
+      c.style.background=x.soft}});
+  modal.querySelectorAll('#qDiff .mchip').forEach(c=>c.onclick=()=>{dr.diff=c.dataset.k;
+    modal.querySelectorAll('#qDiff .mchip').forEach(x=>x.classList.toggle('on',x===c));sync()});
+  sync();
+  modal.querySelector('#qCancel').onclick=openQuests;
+  const del=modal.querySelector('#qDel');
+  if(del)del.onclick=()=>{
+    S.quests=(S.quests||[]).filter(x=>x.id!==q.id);
+    if(S.questRef&&S.questRef.qid===q.id){S.questRef=null;S.questProg=0;S.questPaid=0}
+    save();render();openQuests();toast('Видалено')};
+  modal.querySelector('#qSave').onclick=()=>{
+    const link=!!dr.taskId;
+    const n=modal.querySelector('#qName').value.trim();
+    if(!link&&!n){toast('Впиши назву');return}
+    if(link&&!dr.taskId){toast('Вибери завдання');return}
+    q.emo=dr.emo;q.name=n;q.desc=modal.querySelector('#qDesc').value.trim();
+    q.diff=dr.diff;q.taskId=dr.taskId;
+    q.stats=link?[]:SK.filter(k=>dr.stats.includes(k));
+    q.goal=link?1:Math.min(10,Math.max(1,+modal.querySelector('#qGoal').value||1));
+    if(isNew)S.quests.unshift(q);
+    save();render();openQuests()}}
 
 function renderAch(){
   const sc=document.getElementById('strkCard');
@@ -1215,9 +1503,7 @@ function flushLevels(){
   let h='<div class="lv">';
   h+='<div class="lv-emo">'+e.now.emo+'</div>';
   h+='<div class="lv-stat" style="color:'+s.color+'">'+s.emo+' '+s.name+'</div>';
-  if(fl)h+='<div class="lv-fl">'+esc(fl)+'</div>';
-  if(e.was.name!==e.now.name)h+='<div class="lv-was">Ти більше не '+esc(e.was.name)+'.</div>';
-  h+='<div class="lv-now" style="color:'+s.color+'">Тепер ти '+esc(e.now.name)+'</div>';
+  if(fl)h+='<div class="lv-fl">'+esc(fl).replace(/\n/g,'<br><br>')+'</div>';
   h+='<div class="lv-n">рівень '+e.lvl+'</div></div>';
   h+='<div class="mrow"><button class="btn pri" id="lvOk">Далі</button></div>';
   open(h);modal.querySelector('#lvOk').onclick=()=>{close();setTimeout(flushLevels,180)}}
@@ -1258,7 +1544,8 @@ function openTask(t){
   h+='</div></div>';
   h+='<div class="f"><label>Тип</label><div class="mchips" id="tType">';
   h+='<button class="mchip'+(t.multi?' on':'')+'" data-k="multi">рахувати повтори</button>';
-  h+='<button class="mchip'+(t.once?' on':'')+'" data-k="once">разове</button></div></div>';
+  h+='<button class="mchip'+(t.once?' on':'')+'" data-k="once">разове</button>';
+  h+='<button class="mchip'+(t.quest!==false?' on':'')+'" data-k="quest">може бути квестом</button></div></div>';
   if(!isNew){
     h+='<div class="f"><label>Забула відмітити?</label><div class="retro" id="tRetro">';
     for(let i=1;i<=7;i++){const iso=shiftDay(today(),-i);
@@ -1267,7 +1554,7 @@ function openTask(t){
   h+='<div class="mrow">'+(isNew?'':'<button class="btn del" id="tDel">✕</button>')
     +'<button class="btn" id="tCancel">Назад</button><button class="btn pri" id="tSave">Зберегти</button></div>';
   open(h);
-  const dr={stats:[...t.stats],diff:t.diff,multi:t.multi,once:t.once};
+  const dr={stats:[...t.stats],diff:t.diff,multi:t.multi,once:t.once,quest:t.quest!==false};
   modal.querySelectorAll('#tStats .mchip').forEach(c=>c.onclick=()=>{
     const k=c.dataset.k,s=ST[k],i=dr.stats.indexOf(k);
     if(i>-1){if(dr.stats.length===1)return;dr.stats.splice(i,1);c.classList.remove('on');c.style.cssText=''}
@@ -1291,6 +1578,7 @@ function openTask(t){
   modal.querySelector('#tSave').onclick=()=>{
     const n=modal.querySelector('#tName').value.trim();if(!n){toast('Впиши назву');return}
     t.name=n;t.stats=SK.filter(k=>dr.stats.includes(k));t.diff=dr.diff;t.multi=dr.multi;t.once=dr.once;
+    t.quest=dr.quest;
     if(isNew)S.tasks.unshift(t);save();render();close()}}
 
 document.getElementById('btnNewAch').onclick=()=>openBonus(null);
@@ -1319,7 +1607,7 @@ document.getElementById('btnHist').onclick=()=>{
   h+='</div></div><div class="mrow"><button class="btn" id="hClose">Закрити</button></div>';
   open(h);modal.querySelector('#hClose').onclick=close};
 
-document.getElementById('btnSet').onclick=()=>{
+function openSettings(){
   const pace=S.pace||1;
   let h='<h3>Налаштування</h3>';
   h+='<div class="f"><label>Тема</label><div class="thchips" id="sTheme">';
@@ -1340,6 +1628,19 @@ document.getElementById('btnSet').onclick=()=>{
   h+='<div class="f"><label>Перенести на інший пристрій</label><div class="mrow" style="margin-top:0">';
   h+='<button class="btn" id="sExp">Експорт</button><button class="btn" id="sImp">Імпорт</button></div>';
   h+='<p class="note">Дані живуть тільки в цьому браузері. Щоб відкрити прогрес на телефоні — експортуй файл і імпортуй його там.</p></div>';
+  h+='<div class="f"><label>Квест дня</label><div class="mchips" id="sQSrc">';
+  [['mine','мої квести'],['mix','порівну'],['tasks','мої завдання']].forEach(o=>
+    h+='<button class="mchip'+((S.questSrc||'mix')===o[0]?' on':'')+'" data-v="'+o[0]+'">'+o[1]+'</button>');
+  h+='</div>';
+  h+='<div class="mchips" id="sQBias" style="margin-top:7px">';
+  h+='<button class="mchip'+(S.questBias?'':' on')+'" data-v="0">рівномірно</button>';
+  h+='<button class="mchip'+(S.questBias?' on':'')+'" data-v="1">підтягувати слабке</button></div>';
+  h+='<div class="qrow" style="margin-top:8px"><input type="number" id="sQMul" min="1" max="5" step="0.1" value="'
+    +questMul()+'" style="width:88px"><button class="btn" id="sQEdit" style="flex:1">Мої квести ('
+    +((S.quests||[]).length)+')</button></div>';
+  h+='<p class="note">Множник балів за квест. Один квест на день, зʼявляється при першому відкритті. '
+    +'«Мої завдання» — це ті зі списку, у яких увімкнено «може бути квестом». '
+    +'«Підтягувати слабке» частіше підкидає квести по статях, які за останній тиждень відстають.</p></div>';
   h+='<div class="f"><label>Автоматичні нагороди</label><div class="mchips" id="sAuto">';
   h+='<button class="mchip'+(S.autoAch!==0?' on':'')+'" data-v="1">показувати</button>';
   h+='<button class="mchip'+(S.autoAch===0?' on':'')+'" data-v="0">сховати</button></div>';
@@ -1356,6 +1657,14 @@ document.getElementById('btnSet').onclick=()=>{
     S.theme=c.dataset.k;applyTheme();save();
     modal.querySelectorAll('#sTheme .thc').forEach(x=>x.classList.toggle('on',x===c));
     renderRadar();renderGrid();renderFilters();renderSort();renderTasks();renderAch();renderWeek();renderTop()});
+  let nqsrc=S.questSrc||'mix',nqbias=S.questBias?1:0;
+  modal.querySelectorAll('#sQSrc .mchip').forEach(c=>c.onclick=()=>{nqsrc=c.dataset.v;
+    modal.querySelectorAll('#sQSrc .mchip').forEach(x=>x.classList.toggle('on',x===c))});
+  modal.querySelectorAll('#sQBias .mchip').forEach(c=>c.onclick=()=>{nqbias=+c.dataset.v;
+    modal.querySelectorAll('#sQBias .mchip').forEach(x=>x.classList.toggle('on',x===c))});
+  modal.querySelector('#sQEdit').onclick=()=>{
+    S.questSrc=nqsrc;S.questBias=nqbias;
+    S.questMul=Math.max(1,+modal.querySelector('#sQMul').value||1.5);save();openQuests()};
   let nauto=S.autoAch!==0?1:0;
   modal.querySelectorAll('#sAuto .mchip').forEach(c=>c.onclick=()=>{nauto=+c.dataset.v;
     modal.querySelectorAll('#sAuto .mchip').forEach(x=>x.classList.toggle('on',x===c))});
@@ -1365,7 +1674,8 @@ document.getElementById('btnSet').onclick=()=>{
   modal.querySelector('#sClose').onclick=close;
   modal.querySelector('#sSave').onclick=()=>{
     S.penalty=Math.max(0,+modal.querySelector('#sPen').value||0);
-    S.pace=np;S.autoAch=nauto;
+    S.pace=np;S.autoAch=nauto;S.questSrc=nqsrc;S.questBias=nqbias;
+    S.questMul=Math.max(1,+modal.querySelector('#sQMul').value||1.5);
     const lines=modal.querySelector('#sFort').value.split('\n').map(x=>x.trim()).filter(Boolean);
     if(lines.length)S.fortunes=lines;
     save();render();close();toast('Збережено')};
@@ -1380,6 +1690,12 @@ document.getElementById('btnSet').onclick=()=>{
           if(S.stats[k].miss==null)S.stats[k].miss=0});
         if(!S.fortunes||!S.fortunes.length)S.fortunes=FORTUNES.slice();
         if(!Array.isArray(S.bonuses))S.bonuses=[];
+        if(!Array.isArray(S.quests))S.quests=seedQuests();
+        if(S.questMul==null)S.questMul=1.5;
+        if(!S.questSrc)S.questSrc='mix';
+        if(S.questBias==null)S.questBias=0;
+        if(!Array.isArray(S.questSeen))S.questSeen=[];
+        (S.tasks||[]).forEach(t=>{if(t.quest==null)t.quest=true});
         if(S.autoAch==null)S.autoAch=1;
         if(!THEMES[S.theme])S.theme='sky';
         if(!['def','diff','abc'].includes(S.sort))S.sort='def';
@@ -1394,7 +1710,8 @@ document.getElementById('btnSet').onclick=()=>{
   modal.querySelector('#sReset').onclick=()=>{
     if(!confirm('Стерти ВСЕ — разом із твоїми завданнями й досягненнями?\n\n'
       +'Застосунок повернеться до стартового набору завдань. Це не можна скасувати.'))return;
-    localStorage.removeItem(KEY);S=load();applyTheme();save();render();close();toast('Готово')}};
+    localStorage.removeItem(KEY);S=load();applyTheme();save();render();close();toast('Готово')}}
+document.getElementById('btnSet').onclick=openSettings;
 
 function sumToTen(){let s=0;for(let l=1;l<10;l++)s+=60+40*(l-1)+6*(l-1)*(l-1);return s}
 
@@ -1407,12 +1724,13 @@ function goTab(p){const n=document.querySelector('.nv[data-p='+p+']');if(n)n.cli
 
 applyTheme();
 rollover();
+pickQuest();
 backfillAch();
 const fresh=pickFortune();
 render();
 if(fresh)showFortuneModal();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){
-  rollover();const f=pickFortune();render();if(f)showFortuneModal()}});
+  rollover();pickQuest();const f=pickFortune();render();if(f)showFortuneModal()}});
 
 if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
