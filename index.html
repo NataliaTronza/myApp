@@ -667,6 +667,7 @@ function rankOf(k,lvl){const a=RANKS[k],s=a[Math.min(a.length,Math.max(1,lvl))-1
 const blank={v:3,lastDay:null,penalty:5,pace:1,theme:'sky',sort:'def',sortDir:1,
   tasks:[],bonuses:[],quests:[],log:{},stats:{},ach:{},achInit:0,autoAch:1,
   questMul:1.5,questSrc:'mix',questBias:0,questDay:null,questRef:null,questProg:0,questPaid:0,questSeen:[],
+  questStart:0,qEvt:[],
   fortunes:FORTUNES.slice(),fortDay:null,fortText:'',fortSeen:[]};
 SK.forEach(k=>blank.stats[k]={xp:0,lvl:1,total:0,streak:0,best:0,miss:0});
 let S=load(),filter='all',LVQ=[],AQ=[];
@@ -676,7 +677,10 @@ if(S.sortDir!==-1)S.sortDir=1;
 
 /* ---------- квест дня ---------- */
 function seedQuests(){
-  const Q=(emo,name,desc,stats,diff,goal)=>({id:uid(),emo,name,desc,stats,diff,goal:goal||1,taskId:null});
+  const Q=(emo,name,desc,stats,diff,goal)=>({id:uid(),emo,name,desc,stats,diff,goal:goal||1,
+    taskId:null,mode:'own',win:0});
+  const C=(emo,name,desc,stats,diff,goal,win)=>({id:uid(),emo,name,desc,stats,diff,goal,
+    taskId:null,mode:'collect',win:win||0});
   return [
     Q('🌱','Зелений день','Приділити увагу рослині: полити, пересадити, очистити листя або перевірити її стан.',['ord'],'high'),
     Q('✍️','100 слів','Написати 100 слів про будь-яку думку, подію чи вигадану історію.',['art','grit'],'mid'),
@@ -690,7 +694,8 @@ function seedQuests(){
     Q('🌳','Вийти з дому','Прогулянка щонайменше 10 хвилин.',['grit'],'low'),
     Q('🌌','Космічний гість','Дізнатися щось про одну планету, зорю або космічне явище.',['mind'],'low'),
     Q('🕯️','Затишний вечір','Підготувати кімнату до вечора так, щоб у ній було особливо приємно.',['ord','grit'],'mid'),
-    Q('💆','День турботи','Зробити три маленькі речі для свого тіла.',['care'],'high',3)
+    C('💆','День турботи','Три завдання з Турботи за день — бонус зверху.',['care'],'high',3,0),
+    C('🛁','Вечір турботи','Година тільки для себе: три дії з Турботи поспіль.',['care'],'vhigh',3,60)
   ]}
 
 function seed(){const T=(n,d,st,m)=>({id:uid(),name:n,diff:d,stats:st,multi:!!m,once:false,doneOn:null,count:0});
@@ -719,6 +724,7 @@ function load(){
     if(m.questMul==null)m.questMul=1.5;
     if(!m.questSrc)m.questSrc='mix';
     if(m.questBias==null)m.questBias=0;
+    if(!Array.isArray(m.qEvt))m.qEvt=[];
     if(!Array.isArray(m.questSeen))m.questSeen=[];
     (m.tasks||[]).forEach(t=>{if(t.quest==null)t.quest=true});
     if(m.autoAch==null)m.autoAch=1;
@@ -834,8 +840,31 @@ function resetProgress(){
   (S.tasks||[]).forEach(t=>{t.doneOn=null;t.count=0});
   (S.bonuses||[]).forEach(b=>{b.doneOn=null;b.count=0});
   S.questDay=null;S.questRef=null;S.questProg=0;S.questPaid=0;S.questSeen=[];
+  S.questStart=0;S.qEvt=[];
   LVQ.length=0;AQ.length=0;
   save();backfillAch();AQ.length=0;save()}
+
+/* дрібний журнал виконань за сьогодні — потрібен квестам-наборам */
+function qEvtAdd(t){S.qEvt=[...(S.qEvt||[]),{ts:Date.now(),id:t.id,k:(t.stats||[]).slice()}].slice(-200)}
+function qEvtDel(t){const a=S.qEvt||[];
+  for(let i=a.length-1;i>=0;i--)if(a[i].id===t.id){a.splice(i,1);return}}
+
+function questWindowEnd(){
+  const r=S.questRef;
+  if(!r||!r.win||!S.questStart)return 0;
+  return S.questStart+r.win*60000}
+function questWindowLeft(){
+  const e=questWindowEnd();return e?Math.max(0,Math.ceil((e-Date.now())/60000)):0}
+
+function questCollected(){
+  const r=S.questRef;if(!r||r.kind!=='collect')return [];
+  const from=r.win?(S.questStart||0):0,to=r.win?questWindowEnd():Infinity;
+  const seen=new Set(),out=[];
+  (S.qEvt||[]).forEach(e=>{
+    if(r.win&&(e.ts<from||e.ts>to))return;
+    if(!(e.k||[]).some(k=>(r.stats||[]).includes(k)))return;
+    if(seen.has(e.id))return;seen.add(e.id);out.push(e)});
+  return out}
 
 function questMul(){const m=+S.questMul;return m>0?m:1}
 function questTotal(r){return r?Math.ceil(DF[r.diff].xp*questMul()):0}
@@ -851,8 +880,9 @@ function questCandidates(){
       if(!t||!questEligible(t))return;
       mine.push({key:'q:'+q.id,kind:'link',qid:q.id,taskId:t.id,emo:q.emo||'⭐',
         name:q.name||t.name,desc:q.desc||'',stats:t.stats.slice(),diff:q.diff||t.diff,goal:1})}
-    else mine.push({key:'q:'+q.id,kind:'own',qid:q.id,taskId:null,emo:q.emo||'⭐',
-      name:q.name,desc:q.desc||'',stats:(q.stats||[]).slice(),diff:q.diff,goal:Math.max(1,q.goal||1)})});
+    else mine.push({key:'q:'+q.id,kind:q.mode==='collect'?'collect':'own',qid:q.id,taskId:null,
+      emo:q.emo||'⭐',name:q.name,desc:q.desc||'',stats:(q.stats||[]).slice(),diff:q.diff,
+      goal:Math.max(1,q.goal||1),win:q.mode==='collect'?Math.max(0,q.win||0):0})});
   (S.tasks||[]).forEach(t=>{if(!questEligible(t))return;
     auto.push({key:'t:'+t.id,kind:'link',qid:null,taskId:t.id,emo:'📋',
       name:t.name,desc:'',stats:t.stats.slice(),diff:t.diff,goal:1})});
@@ -890,12 +920,13 @@ function pickQuest(force){
   else if(src==='tasks')bag=auto.length?auto:mine;
   else{const wantMine=Math.random()<0.6;
     bag=(wantMine?mine:auto);if(!bag.length)bag=wantMine?auto:mine}
-  if(!bag||!bag.length){S.questDay=today();S.questRef=null;S.questProg=0;S.questPaid=0;save();return false}
+  if(!bag||!bag.length){S.questDay=today();S.questRef=null;S.questProg=0;S.questPaid=0;S.questStart=0;
+    save();return false}
   const seen=(S.questSeen||[]).slice(-Math.max(4,Math.floor(bag.length*0.7)));
   let pool=bag.filter(x=>!seen.includes(x.key));
   if(!pool.length)pool=bag;
   const r=weightedPick(pool);
-  S.questDay=today();S.questRef=r;S.questProg=0;S.questPaid=0;
+  S.questDay=today();S.questRef=r;S.questProg=0;S.questPaid=0;S.questStart=0;
   S.questSeen=[...(S.questSeen||[]),r.key].slice(-60);
   save();return true}
 
@@ -918,6 +949,17 @@ function questStep(dir){
   if(d>0)toast('+'+d+' · квест'+(goal>1?' '+n+' з '+goal:''));
   else if(d<0)toast('Знято '+(-d))}
 
+function questSyncCollect(){
+  const r=S.questRef;if(!r||r.kind!=='collect')return;
+  const goal=Math.max(1,r.goal||1),n=questCollected().length;
+  const full=n>=goal,want=full?questTotal(r):0;
+  if(want!==(S.questPaid||0)){
+    const diff=want-(S.questPaid||0);
+    award(r.stats,diff);
+    S.questPaid=want;
+    if(diff>0)setTimeout(()=>toast('Квест зібрано · +'+diff),260)}
+  S.questProg=Math.min(n,goal)}
+
 /* бонус за квест, привʼязаний до завдання */
 function questSyncLink(){
   const r=S.questRef;if(!r||r.kind!=='link')return;
@@ -936,6 +978,7 @@ function renderQuest(){
   const done=prog>=goal;
   c.classList.toggle('qdone',done);
   const t=questTask(r),total=questTotal(r);
+  if(r.kind==='collect')return renderQuestCollect(c,r);
   let h='<div class="ic">'+esc(r.emo||'⭐')+'</div><div class="qb">';
   h+='<div class="lb">Квест дня'+(questMul()!==1?' · ×'+String(questMul()).replace('.',',') :'')+'</div>';
   h+='<div class="tn">'+esc(r.name)+'</div>';
@@ -964,6 +1007,35 @@ function renderQuest(){
   const mn=c.querySelector('#qMinus');
   if(mn)mn.onclick=()=>questStep(-1)}
 
+function renderQuestCollect(c,r){
+  const goal=Math.max(1,r.goal||1),got=questCollected(),n=Math.min(goal,got.length);
+  const done=n>=goal,started=!r.win||!!S.questStart,left=questWindowLeft();
+  const expired=!!r.win&&!!S.questStart&&left<=0&&!done;
+  c.classList.toggle('qdone',done);
+  let h='<div class="ic">'+esc(r.emo||'⭐')+'</div><div class="qb">';
+  h+='<div class="lb">Квест дня · набір</div>';
+  h+='<div class="tn">'+esc(r.name)+'</div>';
+  if(r.desc)h+='<div class="td">'+esc(r.desc)+'</div>';
+  const names=(r.stats||[]).map(k=>ST[k]?ST[k].name:'').filter(Boolean).join(' або ');
+  if(!r.win)h+='<div class="td">Відмічай завдання зі списку як завжди — '+esc(names)
+    +'. Треба '+goal+', бонус нарахується сам.</div>';
+  else if(!started)h+='<div class="td">Натисни «Почати» — і за '+r.win+' хв відміть '+goal
+    +' завдання ('+esc(names)+'). Бали за самі завдання нараховуються як завжди.</div>';
+  else if(expired)h+='<div class="td">Година вийшла. Завтра буде інший квест — бали за виконані завдання лишились при тобі.</div>';
+  else h+='<div class="td">Лишилось '+left+' хв. Відмічай завдання зі списку — '+esc(names)+'.</div>';
+  if(got.length){
+    const nm=got.map(e=>{const t=(S.tasks||[]).find(x=>x.id===e.id);return t?t.name:'—'});
+    h+='<div class="td" style="color:var(--dim)">Зараховано: '+esc(nm.join(', '))+'</div>'}
+  h+='<div class="qm">';
+  (r.stats||[]).forEach(k=>{const st=ST[k];if(!st)return;
+    h+='<span class="pill" style="color:'+st.color+';background:'+st.soft+'">'+st.emo+' '+st.name+'</span>'});
+  h+='<span class="dlab">бонус +'+questTotal(r)+' за '+goal+'</span></div></div>';
+  if(r.win&&!started)h+='<div class="qrow"><button class="btn pri" id="qGo" style="padding:6px 11px">Почати</button></div>';
+  else h+='<div class="qx">'+n+'/'+goal+'</div>';
+  c.innerHTML=h;
+  const go=c.querySelector('#qGo');
+  if(go)go.onclick=()=>{S.questStart=Date.now();save();render();toast('Пішов час — '+r.win+' хв')}}
+
 function rollover(){
   const t=today();
   if(!S.lastDay){S.lastDay=t;save();return}
@@ -983,6 +1055,7 @@ function rollover(){
     const n=new Date(cur+'T12:00:00');n.setDate(n.getDate()+1);cur=n.toISOString().slice(0,10)}
   S.tasks=S.tasks.filter(x=>!(x.once&&x.doneOn));
   S.tasks.forEach(x=>{x.doneOn=null;x.count=0});
+  S.qEvt=[];S.questStart=0;
   const keys=Object.keys(S.log).sort();
   if(keys.length>200)keys.slice(0,keys.length-200).forEach(k=>delete S.log[k]);
   S.lastDay=t;save();
@@ -1015,7 +1088,7 @@ function showFortuneModal(){
 function todayLog(){return S.log[today()]||Object.fromEntries(SK.map(k=>[k,0]))}
 function render(){syncStreaks();checkAch();
   renderTop();renderRadar();renderFortune();renderWeek();renderGrid();
-  questSyncLink();renderQuest();
+  questSyncLink();questSyncCollect();renderQuest();
   renderFilters();renderSort();renderTasks();renderMyAch();renderAch();flushLevels()}
 
 /* ---------- тижневий підсумок ---------- */
@@ -1189,10 +1262,11 @@ function openQuests(){
     const nm=q.name||(t?t.name:'—');
     let sub;
     if(q.taskId)sub=t?('зі списку · '+t.name):'зі списку · завдання видалено';
-    else sub=(q.stats||[]).map(k=>ST[k]?ST[k].emo+' '+ST[k].name:'').filter(Boolean).join(' · ');
+    else{sub=(q.stats||[]).map(k=>ST[k]?ST[k].emo+' '+ST[k].name:'').filter(Boolean).join(' · ');
+      if(q.mode==='collect')sub='набір '+q.goal+(q.win?' за '+q.win+' хв':'')+' · '+sub}
     const df=q.diff||(t?t.diff:'mid');
     sub+=(sub?' · ':'')+DF[df].label;
-    if((q.goal||1)>1)sub+=' · '+q.goal+' кроки';
+    if((q.goal||1)>1&&q.mode!=='collect')sub+=' · '+q.goal+' кроки';
     h+='<button class="qi" data-id="'+q.id+'"><span class="ic" style="font-size:18px">'+esc(q.emo||'⭐')
       +'</span><span style="flex:1;min-width:0"><span class="n1">'+esc(nm)+'</span>'
       +'<div class="n2">'+esc(sub)+'</div></span></button>'});
@@ -1208,11 +1282,14 @@ function openQuests(){
 function openQuest(q){
   const isNew=!q;
   q=q||{id:uid(),emo:'⭐',name:'',desc:'',stats:[filter==='all'?'grit':filter],diff:'mid',goal:1,taskId:null};
-  const dr={emo:q.emo||'⭐',stats:[...(q.stats||[])],diff:q.diff||'mid',taskId:q.taskId||null};
+  const dr={emo:q.emo||'⭐',stats:[...(q.stats||[])],diff:q.diff||'mid',taskId:q.taskId||null,
+    mode:q.taskId?'link':(q.mode==='collect'?'collect':'own')};
   let h='<h3>'+(isNew?'Новий квест':'Квест')+'</h3>';
   h+='<div class="f"><label>Тип</label><div class="mchips" id="qType">';
-  h+='<button class="mchip'+(dr.taskId?'':' on')+'" data-v="new">нове</button>';
-  h+='<button class="mchip'+(dr.taskId?' on':'')+'" data-v="link">зі списку</button></div></div>';
+  h+='<button class="mchip'+(dr.mode==='own'?' on':'')+'" data-v="new">нове</button>';
+  h+='<button class="mchip'+(dr.mode==='link'?' on':'')+'" data-v="link">зі списку</button>';
+  h+='<button class="mchip'+(dr.mode==='collect'?' on':'')+'" data-v="collect">набір дій</button></div>';
+  h+='<p class="note" id="qTypeNote"></p></div>';
   h+='<div class="f" id="qTaskWrap"><label>Яке завдання</label><select id="qTask" style="width:100%">';
   h+='<option value="">— вибери —</option>';
   (S.tasks||[]).forEach(t=>h+='<option value="'+t.id+'"'+(dr.taskId===t.id?' selected':'')+'>'
@@ -1235,9 +1312,13 @@ function openQuest(q){
   DIFF.forEach(d=>h+='<button class="mchip'+(dr.diff===d.k?' on':'')+'" data-k="'+d.k+'">'
     +d.label+' · '+d.xp+'</button>');
   h+='</div><p class="note" id="qDiffNote"></p></div>';
-  h+='<div class="f" id="qGoalWrap"><label>Скільки разів відмітити</label>'
+  h+='<div class="f" id="qGoalWrap"><label id="qGoalLb">Скільки разів відмітити</label>'
     +'<input type="number" id="qGoal" min="1" max="10" value="'+Math.max(1,q.goal||1)+'">'
-    +'<p class="note">1 — звичайний квест. Більше — бали діляться на кроки.</p></div>';
+    +'<p class="note" id="qGoalNote"></p></div>';
+  h+='<div class="f" id="qWinWrap"><label>Вікно часу, хвилин</label>'
+    +'<input type="number" id="qWin" min="0" max="600" step="5" value="'+Math.max(0,q.win||0)+'">'
+    +'<p class="note">0 — рахується весь день. Більше нуля — зʼявиться кнопка «Почати», '
+    +'і зарахуються тільки завдання, відмічені за цей час.</p></div>';
   h+='<div class="mrow">'+(isNew?'':'<button class="btn del" id="qDel">✕</button>')
     +'<button class="btn" id="qCancel">Назад</button><button class="btn pri" id="qSave">Зберегти</button></div>';
   open(h);
@@ -1245,18 +1326,33 @@ function openQuest(q){
         wrapG=modal.querySelector('#qGoalWrap'),sel=modal.querySelector('#qTask'),
         nameLb=modal.querySelector('#qNameLb'),nameIn=modal.querySelector('#qName'),
         note=modal.querySelector('#qDiffNote');
+  const wrapW=modal.querySelector('#qWinWrap'),goalLb=modal.querySelector('#qGoalLb'),
+        goalNote=modal.querySelector('#qGoalNote'),typeNote=modal.querySelector('#qTypeNote');
   const sync=()=>{
-    const link=!!dr.taskId||modal.querySelector('#qType .mchip[data-v=link]').classList.contains('on');
+    const link=dr.mode==='link',col=dr.mode==='collect';
     wrapT.style.display=link?'':'none';
     wrapS.style.display=link?'none':'';
     wrapG.style.display=link?'none':'';
+    wrapW.style.display=col?'':'none';
     nameLb.textContent=link?'Уточнення на сьогодні — можна лишити порожнім':'Назва';
     nameIn.placeholder=link?'Наприклад: сьогодні саме кухня':'';
-    note.textContent='Квест дасть '+Math.ceil(DF[dr.diff].xp*questMul())+' балів при множнику ×'
-      +String(questMul()).replace('.',',')+'.'};
+    goalLb.textContent=col?'Скільки завдань зібрати':'Скільки разів відмітити';
+    goalNote.textContent=col
+      ?'Рахуються різні завдання зі списку з цими статами. Бонус нараховується, коли набереш усі.'
+      :'1 — звичайний квест. Більше — бали діляться на кроки.';
+    typeNote.textContent=link
+      ?'Показує картку, а тиснеш у списку завдань — воно дасть підвищені бали.'
+      :col
+      ?'Нічого відмічати на картці не треба: квест сам рахує завдання зі списку й доплачує бонус, коли набереш потрібну кількість. Задвоєння немає — бали за самі завдання йдуть як завжди.'
+      :'Окрема дія, якої немає у списку. Відмічається прямо на картці й дає свої бали.';
+    const total=Math.ceil(DF[dr.diff].xp*questMul());
+    note.textContent=col
+      ?'Бонус за зібраний набір: '+total+' балів (множник ×'+String(questMul()).replace('.',',')+').'
+      :'Квест дасть '+total+' балів при множнику ×'+String(questMul()).replace('.',',')+'.'};
   modal.querySelectorAll('#qType .mchip').forEach(c=>c.onclick=()=>{
     modal.querySelectorAll('#qType .mchip').forEach(x=>x.classList.toggle('on',x===c));
-    if(c.dataset.v==='new'){dr.taskId=null;sel.value=''}
+    dr.mode=c.dataset.v==='new'?'own':c.dataset.v;
+    if(dr.mode!=='link'){dr.taskId=null;sel.value=''}
     else if(!dr.taskId&&sel.value)dr.taskId=sel.value;
     sync()});
   sel.onchange=()=>{dr.taskId=sel.value||null;sync()};
@@ -1279,14 +1375,16 @@ function openQuest(q){
     if(S.questRef&&S.questRef.qid===q.id){S.questRef=null;S.questProg=0;S.questPaid=0}
     save();render();openQuests();toast('Видалено')};
   modal.querySelector('#qSave').onclick=()=>{
-    const link=!!dr.taskId;
+    const link=dr.mode==='link',col=dr.mode==='collect';
     const n=modal.querySelector('#qName').value.trim();
     if(!link&&!n){toast('Впиши назву');return}
     if(link&&!dr.taskId){toast('Вибери завдання');return}
+    if(col&&!dr.stats.length){toast('Вибери хоча б одну стату');return}
     q.emo=dr.emo;q.name=n;q.desc=modal.querySelector('#qDesc').value.trim();
-    q.diff=dr.diff;q.taskId=dr.taskId;
+    q.diff=dr.diff;q.taskId=link?dr.taskId:null;q.mode=dr.mode;
     q.stats=link?[]:SK.filter(k=>dr.stats.includes(k));
     q.goal=link?1:Math.min(10,Math.max(1,+modal.querySelector('#qGoal').value||1));
+    q.win=col?Math.min(600,Math.max(0,+modal.querySelector('#qWin').value||0)):0;
     if(isNew)S.quests.unshift(q);
     save();render();openQuests()}}
 
@@ -1452,18 +1550,18 @@ function taskRow(t){
   if(t.multi){
     if(t.count){const mn=document.createElement('button');mn.className='mn';mn.textContent='−';
       mn.title='Прибрати один раз';
-      mn.onclick=()=>{if(!t.count)return;t.count--;award(t.stats,-xp);
+      mn.onclick=()=>{if(!t.count)return;t.count--;award(t.stats,-xp);qEvtDel(t);
         if(!t.count)t.doneOn=null;save();render()};
       el.appendChild(mn)}
     const c=document.createElement('button');c.className='cnt'+(t.count?' has':'');
     c.textContent=t.count?'×'+t.count:'+';
     if(t.count){c.style.borderColor=c0.color;c.style.background=c0.soft;c.style.color=c0.color}
-    c.onclick=()=>{t.count=(t.count||0)+1;t.doneOn=today();award(t.stats,xp);save();render()};
+    c.onclick=()=>{t.count=(t.count||0)+1;t.doneOn=today();award(t.stats,xp);qEvtAdd(t);save();render()};
     el.appendChild(c)}
   else{const c=document.createElement('button');c.className='check';c.textContent='✓';
     if(t.doneOn){c.style.background=c0.color;c.style.borderColor=c0.color}
-    c.onclick=()=>{if(t.doneOn){award(t.stats,-xp);t.doneOn=null;t.count=0}
-      else{t.doneOn=today();t.count=1;award(t.stats,xp)}save();render()};
+    c.onclick=()=>{if(t.doneOn){award(t.stats,-xp);t.doneOn=null;t.count=0;qEvtDel(t)}
+      else{t.doneOn=today();t.count=1;award(t.stats,xp);qEvtAdd(t)}save();render()};
     el.appendChild(c)}
   const b=document.createElement('div');b.className='tb';
   b.innerHTML='<div class="tn">'+esc(t.name)+'</div>';
@@ -1694,6 +1792,7 @@ function openSettings(){
         if(S.questMul==null)S.questMul=1.5;
         if(!S.questSrc)S.questSrc='mix';
         if(S.questBias==null)S.questBias=0;
+        if(!Array.isArray(S.qEvt))S.qEvt=[];
         if(!Array.isArray(S.questSeen))S.questSeen=[];
         (S.tasks||[]).forEach(t=>{if(t.quest==null)t.quest=true});
         if(S.autoAch==null)S.autoAch=1;
