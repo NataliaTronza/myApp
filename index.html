@@ -67,6 +67,55 @@ button{background:none;border:none;cursor:pointer}
   box-shadow:0 3px 0 var(--edge);padding:14px}
 .radarcard{margin-bottom:9px;padding:8px 10px 4px}
 .radarcard svg{width:100%;height:auto;display:block}
+.rlg{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:2px 4px 6px;font-size:11.5px;font-weight:700;color:var(--ink-2)}
+.rlg .k{display:flex;align-items:center;gap:5px}
+.rlg .sw{width:16px;height:0;border-top:3px solid var(--rad-line);border-radius:2px}
+.rlg .sw.g{border-top:2px dashed var(--ink-2);opacity:.7}
+.rlg .seg2{margin-left:auto;display:flex;border:2px solid var(--edge);border-radius:9px;overflow:hidden;background:var(--soft)}
+.rlg .seg2 button{font-family:var(--disp);font-size:12px;font-weight:500;padding:3px 9px;color:var(--ink-2)}
+.rlg .seg2 button.on{background:var(--card);color:var(--accent)}
+.rlg .hint{width:100%;color:var(--dim);font-weight:600}
+
+/* «+бали» вилітають з кнопки, яку натиснула */
+.flt{position:fixed;z-index:90;pointer-events:none;font-family:var(--disp);font-weight:600;font-size:17px;
+  transform:translate(-50%,0);text-shadow:0 1px 0 var(--card),0 0 6px var(--card);animation:flt .9s ease-out forwards}
+@keyframes flt{0%{opacity:0;transform:translate(-50%,6px) scale(.7)}18%{opacity:1;transform:translate(-50%,-8px) scale(1.15)}
+  100%{opacity:0;transform:translate(-50%,-46px) scale(1)}}
+
+/* конфеті з квадратиків — таких самих, як точки на мапі */
+.cf{position:fixed;inset:0;pointer-events:none;z-index:95;overflow:hidden}
+.cf i{position:absolute;top:-16px;aspect-ratio:1;border-radius:2px;border:1.5px solid rgba(255,255,255,.9);
+  animation-name:cf;animation-timing-function:cubic-bezier(.25,.6,.45,1);animation-fill-mode:forwards}
+@keyframes cf{0%{transform:translate(0,0) rotate(0)}100%{transform:translate(var(--dx),108vh) rotate(var(--rot))}}
+.lv-emo{animation:lvpop .55s cubic-bezier(.3,1.6,.5,1)}
+@keyframes lvpop{0%{transform:scale(.3);opacity:0}100%{transform:scale(1);opacity:1}}
+
+/* рік у клітинках */
+.hm{display:flex;gap:6px;margin-top:4px}
+.hm-d{display:grid;grid-template-rows:14px repeat(7,12px);row-gap:3px;font-size:9.5px;color:var(--dim);font-weight:700;flex:none}
+.hm-d span{line-height:12px}
+.hm-s{overflow-x:auto;flex:1;scrollbar-width:thin;padding-bottom:4px}
+.hm-g{display:grid;grid-auto-flow:column;grid-template-rows:14px repeat(7,12px);grid-auto-columns:12px;gap:3px;width:max-content}
+.hm-m{font-size:9.5px;color:var(--dim);font-weight:700;white-space:nowrap;line-height:14px;overflow:visible}
+.hm-c{width:12px;height:12px;border-radius:3px;background:var(--hb-empty);position:relative;padding:0;border:0}
+.hm-c.pd::after{content:'';position:absolute;right:1px;bottom:1px;width:4px;height:4px;border-radius:50%;background:var(--bad)}
+.hm-c.td{outline:2px solid var(--ink-2);outline-offset:1px}
+.hm-c.sel{outline:2px solid var(--accent);outline-offset:1px}
+.hm-x{font-size:12px;color:var(--ink-2);font-weight:600;line-height:1.55;min-height:38px;margin-top:6px}
+.hm-x b{color:var(--ink)}
+.hm-lg{display:flex;align-items:center;gap:3px;font-size:10px;color:var(--dim);font-weight:700;margin-top:4px}
+.hm-lg i{width:10px;height:10px;border-radius:2px;display:inline-block}
+
+/* підсумок тижня */
+.rc-n{font-family:var(--disp);font-size:34px;font-weight:600;line-height:1.1}
+.rc-d{font-size:12.5px;color:var(--ink-2);font-weight:700;margin-top:3px}
+.rc-l{display:flex;gap:9px;align-items:baseline;font-size:13px;font-weight:600;line-height:1.45;padding:6px 0;
+  border-top:2px dashed var(--edge)}
+.rc-l .e{flex:none;width:20px;text-align:center}
+.rc-l .t{flex:1;min-width:0}
+.rc-l .t small{display:block;color:var(--ink-2);font-size:11.5px;font-weight:600}
+
+@media (prefers-reduced-motion: reduce){.flt,.cf,.lv-emo{animation:none!important}.cf,.flt{display:none}}
 .hero{display:flex;gap:14px;align-items:center;margin-bottom:9px}
 .hero .txt{flex:1;min-width:0}
 .hero h1{font-family:var(--disp);font-size:20px;font-weight:600;line-height:1.25}
@@ -121,6 +170,22 @@ button{background:none;border:none;cursor:pointer}
 .sc-meta{display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2);margin-top:6px;font-weight:700}
 .sc-gain{font-family:var(--disp);font-size:12.5px;font-weight:500}
 
+.sc-r{display:flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;color:var(--ink-2);margin-top:6px}
+.sc-r .gb{flex:1;height:7px;border-radius:4px;background:var(--field);border:1px solid var(--seg-line);overflow:hidden}
+.sc-r .gb i{display:block;height:100%;border-radius:3px}
+.sc-r .dt{flex:1;display:flex;gap:3px;align-items:center}
+.sc-r .dt i{width:8px;height:8px;border-radius:50%;border:1.5px solid;box-sizing:border-box}
+@media(max-width:619px){.grid .sc:last-child:nth-child(odd){grid-column:1/-1}}
+.bk{display:flex;align-items:center;gap:10px;background:var(--card);border:2px dashed var(--edge-2);
+  border-radius:var(--r);padding:10px 12px;margin-top:12px;font-size:12.5px;font-weight:600;color:var(--ink-2);line-height:1.45}
+.bk .ic{font-size:17px;flex:none}
+.bk span{flex:1}
+.bk button{flex:none;font-family:var(--disp);font-size:13px;font-weight:500;color:var(--accent);
+  border:2px solid var(--edge);background:var(--card);border-radius:9px;padding:4px 10px;box-shadow:0 2px 0 var(--edge)}
+.rh{border-top:2px dashed var(--edge);padding:10px 0 2px;margin-bottom:6px}
+.rh-t{display:flex;gap:7px;align-items:center;font-size:13.5px;font-weight:700;margin-bottom:7px}
+.rh-x{font-size:12px;color:var(--ink-2);font-weight:700;margin-top:8px;display:flex;align-items:center;gap:7px}
+.rh-x input[type=number]{width:64px!important;text-align:center;padding:5px 6px!important}
 .filters{display:flex;gap:5px;flex-wrap:wrap;padding-bottom:9px}
 .fchip{font-family:var(--disp);font-size:13px;font-weight:500;padding:4px 11px;border-radius:9px;
   background:var(--card);border:2px solid var(--edge);color:var(--ink-2);box-shadow:0 2px 0 var(--edge)}
@@ -299,6 +364,7 @@ button{background:none;border:none;cursor:pointer}
   <section class="page on" data-p="map">
     <div class="card radarcard">
       <svg id="radar" viewBox="0 0 384 322"></svg>
+      <div class="rlg" id="radarLg"></div>
     </div>
     <div class="card hero">
       <div class="txt">
@@ -313,6 +379,7 @@ button{background:none;border:none;cursor:pointer}
     </div>
     <div class="card wk" id="weekCard"></div>
     <div class="grid" id="statGrid"></div>
+    <div class="bk" id="bkCard" style="display:none"></div>
   </section>
 
   <section class="page" data-p="tasks">
@@ -344,13 +411,17 @@ button{background:none;border:none;cursor:pointer}
 <div id="toast"></div>
 
 <script>
+/* Порядок у масиві = порядок осей на мапі (за годинниковою, від верху). */
 const STATS=[
- {k:'str', emo:'💪', name:'Сила',      color:'#EE9184', soft:'#FDEEEB', line:'#F6C7BF'},
- {k:'mind',emo:'🧠', name:'Розум',     color:'#79AEEC', soft:'#EAF3FD', line:'#BCD9F6'},
- {k:'ord', emo:'✨', name:'Порядок',   color:'#68C6AB', soft:'#E7F7F2', line:'#B3E4D5'},
- {k:'care',emo:'🌸', name:'Турбота',   color:'#EE96BB', soft:'#FDEDF4', line:'#F7C9DD'},
- {k:'art', emo:'🎨', name:'Творчість', color:'#EDB566', soft:'#FDF3E4', line:'#F7DBB2'},
- {k:'grit',emo:'🛡️', name:'Стійкість', color:'#A692E4', soft:'#F1EDFD', line:'#D2C7F1'}
+ {k:'str',   emo:'💪', name:'Сила',        color:'#EE9184', soft:'#FDEEEB', line:'#F6C7BF'},
+ {k:'health',emo:'🍏', name:'Здоровʼя',    color:'#86C267', soft:'#EEF8E8', line:'#C9E6B6'},
+ {k:'care',  emo:'🌸', name:'Турбота',     color:'#EE96BB', soft:'#FDEDF4', line:'#F7C9DD'},
+ {k:'ord',   emo:'✨', name:'Порядок',     color:'#68C6AB', soft:'#E7F7F2', line:'#B3E4D5'},
+ {k:'art',   emo:'🎨', name:'Творчість',   color:'#EDB566', soft:'#FDF3E4', line:'#F7DBB2'},
+ {k:'mind',  emo:'🧠', name:'Розум',       color:'#79AEEC', soft:'#EAF3FD', line:'#BCD9F6'},
+ {k:'lang',  emo:'🗣️', name:'Мови',        color:'#52BCD4', soft:'#E4F5F9', line:'#AEDFEA'},
+ {k:'soc',   emo:'💬', name:'Спілкування', color:'#CB8AD6', soft:'#F8EDFA', line:'#E7C7EC'},
+ {k:'grit',  emo:'🛡️', name:'Стійкість',   color:'#A692E4', soft:'#F1EDFD', line:'#D2C7F1'}
 ];
 STATS.forEach(s=>s.base={color:s.color,soft:s.soft,line:s.line});
 const SK=STATS.map(s=>s.k), ST=Object.fromEntries(STATS.map(s=>[s.k,s]));
@@ -358,6 +429,11 @@ const DIFF=[{k:'vlow',xp:2,label:'дуже легко'},{k:'low',xp:5,label:'л�
  {k:'high',xp:20,label:'складно'},{k:'vhigh',xp:40,label:'дуже складно'},{k:'epic',xp:100,label:'епічно'}];
 const DF=Object.fromEntries(DIFF.map(d=>[d.k,d]));
 const KEY='staty.v1';
+const PREV_KEY=KEY+'.prev';
+let LOAD_ERR=false;
+/* Ритм за замовчуванням: day — штраф за день без балів; week — норма балів на тиждень;
+   state — полоска стану, яка щодня просідає сама; free — без штрафів. */
+const DEF_RHY={str:{mode:'week',norm:80},soc:{mode:'free'},ord:{mode:'state',drain:10}};
 
 /* ===== ТЕМИ ===== */
 const THEMES={
@@ -431,7 +507,8 @@ const THEMES={
   '--rad-fill':'#4E6C9E','--rad-line':'#7FA6DE','--rad-label':'#A5B0C6',
   '--seg-line':'rgba(255,255,255,.08)','--hb-empty':'#2B3244','--tc':'#181E2B'}}
 };
-const DARK_STAT={str:'#FF9E90',mind:'#8FC2FF',ord:'#6FD8B8',care:'#FF9EC4',art:'#F5C577',grit:'#B6A2FF'};
+const DARK_STAT={str:'#FF9E90',health:'#A4DB84',care:'#FF9EC4',ord:'#6FD8B8',art:'#F5C577',
+  mind:'#8FC2FF',lang:'#6FD3EA',soc:'#E3A6EC',grit:'#B6A2FF'};
 let TV=THEMES.sky.v;
 
 function hexA(h,a){const n=parseInt(h.slice(1),16);
@@ -459,9 +536,21 @@ const RANKS={
  art:['🌈 Фантазерка','🌙 Мріяниця','✨ Натхненниця','💫 Муза','🧪 Експериментаторка',
       '🎨 Мисткиня','✍️ Авторка','💡 Новаторка','🇯🇵 Шокунін','🎼 Віртуозка'],
  grit:['🌊 Мандрівниця','🪨 Стійка','🔥 Загартована','🌿 Витривала','🌩️ Підкорювачка бурі',
-      '🧭 Врівноважена','🌊 Спокійна серед хвиль','🧘 Усвідомлена','✨ Просвітлена','🪷 Незворушна']
+      '🧭 Врівноважена','🌊 Спокійна серед хвиль','🧘 Усвідомлена','✨ Просвітлена','🪷 Незворушна'],
+ /* три нові — поки чернетки звань, можна замінити */
+ health:['🌱 Прокинута','💧 Напоєна','🥕 Уважна','🍎 Збалансована','🫐 Свідома',
+      '🌿 Наповнена','☀️ Енергійна','🧡 Міцна','🌳 Укорінена','💚 Цілісна'],
+ lang:['🐣 Слухачка','📝 Учениця','🗨️ Балакуча','✈️ Мандрівна','📖 Читачка',
+      '🎧 Тямуща','🌉 Перекладачка','🦜 Поліглотка','🌍 Громадянка світу','🗝️ Володарка мов'],
+ soc:['🦔 Їжачок','🐾 Привітна','☕ Кавова подруга','💌 Уважна','🎈 Компанійська',
+      '🤝 Надійна','🌻 Сонячна','🔥 Вогник','🧶 Сполучна нитка','💞 Серце кола']
 };
 const FLAVOR={
+/* Для Здоровʼя, Мов і Спілкування текстів ще немає: поки вікно рівня
+   показує тільки «Тепер ти …». Дописати — замінити порожні рядки нижче. */
+ health:['','','','','','','','','',''],
+ lang:['','','','','','','','','',''],
+ soc:['','','','','','','','','',''],
 /* Своя фраза на кожен рівень. Індекс у масиві = рівень мінус один:
    [0] — рівень 1 (стартовий, у модалці не показується),
    [1] — рівень 2, ... [9] — рівень 10. Для рівнів вище 10 модалки немає, лише тост.
@@ -664,7 +753,9 @@ const FORTUNES=[
 function rankOf(k,lvl){const a=RANKS[k],s=a[Math.min(a.length,Math.max(1,lvl))-1];
   const i=s.indexOf(' ');return{emo:s.slice(0,i),name:s.slice(i+1),full:s}}
 
-const blank={v:3,lastDay:null,penalty:5,pace:1,theme:'sky',sort:'def',sortDir:1,
+const blank={v:5,lastDay:null,penalty:5,pace:1,theme:'sky',sort:'def',sortDir:1,
+  pen:{},bon:{},rhythm:{},rhyHist:{},penHist:[],since:{},gauge:{},startDay:null,penThrough:null,lastExport:null,
+  qDone:{},ghost:'w',recapSeen:null,recapPending:null,
   tasks:[],bonuses:[],quests:[],log:{},stats:{},ach:{},achInit:0,autoAch:1,
   questMul:1.5,questSrc:'mix',questBias:0,questDay:null,questRef:null,questProg:0,questPaid:0,questSeen:[],
   questStart:0,qEvt:[],
@@ -698,40 +789,95 @@ function seedQuests(){
     C('🛁','Вечір турботи','Година тільки для себе: три дії з Турботи поспіль.',['care'],'vhigh',3,60)
   ]}
 
-function seed(){const T=(n,d,st,m)=>({id:uid(),name:n,diff:d,stats:st,multi:!!m,once:false,doneOn:null,count:0});
+function seed(){const T=(n,d,st,m)=>({id:uid(),name:n,diff:d,stats:st,multi:!!m,once:false,quest:true,doneOn:null,count:0});
  return[T('Тренування / присідання','mid',['str']),T('Йога','low',['str','grit']),T('10 000 кроків','mid',['str']),
-  T('2 літри води','vlow',['str','care']),T('Здоровий прийом їжі','low',['str','care'],true),
-  T('5 нових англійських слів','low',['mind']),T('Урок / заняття англійською','mid',['mind']),
+  T('2 літри води','vlow',['health']),T('Здоровий прийом їжі','low',['health'],true),
+  T('Вітаміни / ліки','vlow',['health']),T('Лягти спати до 23:00','mid',['health']),
+  T('SPF','vlow',['care']),T('Помити голову','low',['care']),T('Макіяж','vlow',['care']),T('Догляд за собою','low',['care']),
+  T('5 нових англійських слів','low',['lang']),T('Урок / заняття англійською','mid',['lang']),
   T('Читати 20 сторінок','low',['mind']),T('Навчання, курс — 1 година','mid',['mind']),
   T('Прибрати одну зону','low',['ord'],true),T('Розхламити 10 речей','mid',['ord']),T('Помити посуд','vlow',['ord']),
-  T('Розібрати документи або файли','mid',['ord','mind']),T('Лягти спати до 23:00','mid',['care']),
-  T('Вітаміни / ліки','vlow',['care']),T('Догляд за собою','low',['care']),
+  T('Розібрати документи або файли','mid',['ord','mind']),
   T('Попрацювати над книгою','mid',['art']),T('Написати пост у блог','mid',['art']),T('Зробити свічку','low',['art']),
-  T('Творча сесія 30 хвилин','low',['art'],true),T('Сесія з психологом','high',['grit']),
-  T('Медитація 10 хвилин','low',['grit']),T('Психологічна практика','mid',['grit']),
-  T('Ресурсне заняття','low',['grit','care'])]}
+  T('Творча сесія 30 хвилин','low',['art'],true),
+  T('Зустрітися або подзвонити комусь','mid',['soc']),T('Написати комусь просто так','vlow',['soc']),
+  T('Сесія з психологом','high',['grit']),T('Медитація 10 хвилин','low',['grit']),
+  T('Психологічна практика','mid',['grit'])]}
+/* Приводить будь-які збережені дані (старі, імпортовані, свіжі) до поточної моделі. */
+function migrate(m,d){
+  const t=today();
+  const had=Object.fromEntries(SK.map(k=>[k,!!(d&&d.stats&&d.stats[k])]));
+  SK.forEach(k=>{if(!m.stats[k])m.stats[k]={xp:0,lvl:1,total:0,streak:0,best:0,miss:0};
+    if(m.stats[k].miss==null)m.stats[k].miss=0;if(m.stats[k].wbest==null)m.stats[k].wbest=0});
+  if(!m.pen||typeof m.pen!=='object')m.pen={};
+  if(!m.rhythm||typeof m.rhythm!=='object')m.rhythm={};
+  if(!m.since||typeof m.since!=='object')m.since={};
+  if(!m.gauge||typeof m.gauge!=='object')m.gauge={};
+  SK.forEach(k=>{if(!m.rhythm[k])m.rhythm[k]=structuredClone(DEF_RHY[k]||{mode:'day'})});
+  if(d&&(!d.v||d.v<4)){
+    /* до v4 штрафи писались у журнал мінусом — переносимо їх в окрему відомість */
+    Object.keys(m.log||{}).forEach(iso=>{const l=m.log[iso];
+      Object.keys(l).forEach(k=>{if(l[k]<0){(m.pen[iso]=m.pen[iso]||{})[k]=-l[k];l[k]=0}})});
+    const keys=Object.keys(m.log||{}).sort();
+    m.startDay=m.startDay||[keys[0],m.lastDay].filter(Boolean).sort()[0]||null;
+    m.penThrough=m.lastDay?shiftDay(m.lastDay,-1):null;
+    /* новий ритм і нові стати стартують сьогодні — без штрафів заднім числом */
+    SK.forEach(k=>{if(m.since[k])return;
+      m.since[k]=(had[k]&&m.rhythm[k].mode==='day'&&m.startDay)?m.startDay:t});
+    m.v=4}
+  if(d&&(!d.v||d.v<5)){
+    /* v4 рахувала тижневу норму в днях; тепер — у балах. Спілкування — без штрафів. */
+    SK.forEach(k=>{const r=m.rhythm[k];
+      if(r&&r.mode==='week'&&(+r.norm||0)<=7)m.rhythm[k]=k==='soc'?{mode:'free'}:{mode:'week',norm:80}});
+    m.v=5}
+  if(!m.rhyHist||typeof m.rhyHist!=='object')m.rhyHist={};
+  SK.forEach(k=>{if(!Array.isArray(m.rhyHist[k])||!m.rhyHist[k].length)
+    m.rhyHist[k]=[Object.assign({d:'2000-01-01'},normRule(m.rhythm[k]))]});
+  if(!Array.isArray(m.penHist)||!m.penHist.length)m.penHist=[{d:'2000-01-01',p:Math.max(0,+m.penalty||0)}];
+  if(!m.bon||typeof m.bon!=='object')m.bon={};
+  if(!m.qDone||typeof m.qDone!=='object')m.qDone={};
+  if(!['w','m','off'].includes(m.ghost))m.ghost='w';
+  if(m.startDay)SK.forEach(k=>{if(!m.since[k])m.since[k]=had[k]?m.startDay:t});
+  SK.forEach(k=>{if(normRule(m.rhythm[k]).mode==='state'&&!m.gauge[k]&&m.since[k])
+    m.gauge[k]={d:m.since[k],v:50}});
+  return m}
+
+/* Повна підготовка даних: старі версії, міграція, значення за замовчуванням. */
+function normalize(m,d){
+  if(d&&(!d.v||d.v<2)){m.v=2;if(!d.penalty||d.penalty<=1)m.penalty=5;m.pace=1}
+  if(d&&(!d.v||d.v<3)){m.v=3;SK.forEach(k=>{if(m.stats&&m.stats[k])m.stats[k].best=0})}
+  if(!m.stats||typeof m.stats!=='object')m.stats={};
+  if(!m.log||typeof m.log!=='object')m.log={};
+  if(!Array.isArray(m.tasks))m.tasks=[];
+  migrate(m,d);
+  if(!m.ach)m.ach={};
+  if(!Array.isArray(m.bonuses))m.bonuses=[];
+  m.bonuses.forEach(b=>{if(b.repeat==null)b.repeat=false;if(b.count==null)b.count=0});
+  if(!Array.isArray(m.quests)||!m.quests.length)m.quests=seedQuests();
+  if(m.questMul==null)m.questMul=1.5;
+  if(!m.questSrc)m.questSrc='mix';
+  if(m.questBias==null)m.questBias=0;
+  if(!Array.isArray(m.qEvt))m.qEvt=[];
+  if(!Array.isArray(m.questSeen))m.questSeen=[];
+  m.tasks.forEach(t=>{if(t.quest==null)t.quest=true;if(!Array.isArray(t.stats)||!t.stats.length)t.stats=['str'];
+    t.stats=t.stats.filter(k=>SK.includes(k));if(!t.stats.length)t.stats=['str'];if(!DF[t.diff])t.diff='low'});
+  if(m.autoAch==null)m.autoAch=1;
+  if(!m.fortunes||!m.fortunes.length)m.fortunes=FORTUNES.slice();
+  if(!m.fortSeen)m.fortSeen=[];
+  return m}
+
+/* Перед оновленням формату й після невдалого читання дані відкладаються сюди. */
+function keepPrev(raw){try{localStorage.setItem(PREV_KEY,JSON.stringify({at:new Date().toISOString(),raw}))}catch(e){}}
+function prevCopy(){try{const x=JSON.parse(localStorage.getItem(PREV_KEY)||'null');return x&&x.raw?x:null}catch(e){return null}}
+
 function load(){
-  try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r),m=structuredClone(blank);
-    Object.assign(m,d);
-    SK.forEach(k=>{if(!m.stats[k])m.stats[k]={xp:0,lvl:1,total:0,streak:0,best:0,miss:0};
-      if(m.stats[k].miss==null)m.stats[k].miss=0});
-    if(!d.v||d.v<2){m.v=2;if(!d.penalty||d.penalty<=1)m.penalty=5;m.pace=1}
-    if(!d.v||d.v<3){m.v=3;SK.forEach(k=>{m.stats[k].best=0})}
-    if(!m.ach)m.ach={};
-    if(!Array.isArray(m.bonuses))m.bonuses=[];
-    m.bonuses.forEach(b=>{if(b.repeat==null)b.repeat=false;if(b.count==null)b.count=0});
-    if(!Array.isArray(m.quests)||!m.quests.length)m.quests=seedQuests();
-    if(m.questMul==null)m.questMul=1.5;
-    if(!m.questSrc)m.questSrc='mix';
-    if(m.questBias==null)m.questBias=0;
-    if(!Array.isArray(m.qEvt))m.qEvt=[];
-    if(!Array.isArray(m.questSeen))m.questSeen=[];
-    (m.tasks||[]).forEach(t=>{if(t.quest==null)t.quest=true});
-    if(m.autoAch==null)m.autoAch=1;
-    if(!m.fortunes||!m.fortunes.length)m.fortunes=FORTUNES.slice();
-    if(!m.fortSeen)m.fortSeen=[];
-    return m}}catch(e){}
-  const d=structuredClone(blank);d.tasks=seed();d.quests=seedQuests();return d}
+  let r=null;try{r=localStorage.getItem(KEY)}catch(e){}
+  if(r){try{const d=JSON.parse(r),m=structuredClone(blank);
+      if(!d||typeof d!=='object')throw new Error('bad');
+      if((d.v||0)<blank.v)keepPrev(r);
+      Object.assign(m,d);return normalize(m,d)}
+    catch(e){keepPrev(r);LOAD_ERR=true}}
+  const d=structuredClone(blank);d.tasks=seed();d.quests=seedQuests();return migrate(d,null)}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Не вдалося зберегти')}}
 function uid(){return Math.random().toString(36).slice(2,10)}
 function today(){const d=new Date();d.setHours(12,0,0,0);return d.toISOString().slice(0,10)}
@@ -755,7 +901,7 @@ const STREAK_MIN=10;
 function shiftDay(iso,n){const d=new Date(iso+'T12:00:00');d.setDate(d.getDate()+n);
   return d.toISOString().slice(0,10)}
 function dayVal(iso,k){const l=S.log[iso];return l?(l[k]||0):0}
-function qual(iso,k,thr){return k==='*'?SK.every(x=>dayVal(iso,x)>=thr):dayVal(iso,k)>=thr}
+function qual(iso,k,thr){return k==='*'?dailyKeys().every(x=>dayVal(iso,x)>=thr):dayVal(iso,k)>=thr}
 function streakOf(k,thr){
   let d=today(),n=0,g=0;
   if(!qual(d,k,thr))d=shiftDay(d,-1);
@@ -768,49 +914,197 @@ function maxRun(k,thr){
     run=qual(d,k,thr)?run+1:0;
     if(run>best)best=run;prev=d}
   return best}
+/* ---------- ритм і штрафи ----------
+   Журнал S.log містить лише зароблене. Штрафи живуть у S.pen і перераховуються
+   за останній тиждень, тож ретро-відмітка сама повертає або донараховує різницю.
+   Ритм і розмір штрафу мають історію: зміна діє з дня, коли її зробили. */
+function normRule(r){r=r||{};const mode=['day','week','state','free'].includes(r.mode)?r.mode:'day';
+  return{mode,norm:Math.min(2000,Math.max(5,Math.round(+r.norm||80))),
+    drain:Math.min(50,Math.max(1,Math.round(+r.drain||10)))}}
+function rhyHist(k){const h=(S.rhyHist||{})[k];
+  return h&&h.length?h:[Object.assign({d:'2000-01-01'},normRule((S.rhythm||{})[k]||DEF_RHY[k]))]}
+function rhyAt(k,iso){const h=rhyHist(k);let r=h[0];for(const e of h){if(e.d<=iso)r=e;else break}return normRule(r)}
+function rhy(k){const h=rhyHist(k);return normRule(h[h.length-1])}
+function penAt(iso){const h=(S.penHist&&S.penHist.length)?S.penHist:[{d:'2000-01-01',p:+S.penalty||0}];
+  let p=h[0].p;for(const e of h){if(e.d<=iso)p=e.p;else break}return Math.max(0,+p||0)}
+function setPenalty(v){v=Math.max(0,Math.min(50,Math.round(+v||0)));
+  if(v===penAt(today())){S.penalty=v;return false}
+  const t=today();S.penHist=(S.penHist||[]).filter(e=>e.d<t);S.penHist.push({d:t,p:v});S.penalty=v;return true}
+
+function earned(iso,k){return Math.max(0,dayVal(iso,k))}
+function penOf(iso,k){const p=(S.pen||{})[iso];return p?(p[k]||0):0}
+function penDay(iso){const p=(S.pen||{})[iso];return p?SK.reduce((a,k)=>a+(p[k]||0),0):0}
+function bonOf(iso,k){const p=(S.bon||{})[iso];return p?(p[k]||0):0}
+function dowMon(iso){return(new Date(iso+'T12:00:00').getDay()+6)%7}
+function weekStart(iso){return shiftDay(iso,-dowMon(iso))}
+function weekEnd(ws){return shiftDay(ws,6)}
+function weekPts(ws,k){let n=0;const t=today();
+  for(let i=0;i<7;i++){const d=shiftDay(ws,i);if(d>t)break;n+=earned(d,k)}return n}
+function weekRule(ws,k){const e=weekEnd(ws),t=today();return rhyAt(k,e<t?e:t)}
+function weekMet(ws,k){const r=weekRule(ws,k);return r.mode==='week'&&weekPts(ws,k)>=r.norm}
+function noPen(k){const m=rhy(k).mode;return m==='week'||m==='free'}
+function dailyKeys(){return SK.filter(k=>!noPen(k))}
+
+/* бонусні бали (нагороди, мої досягнення) — поза денним журналом, але з датою */
+function awardBonus(keys,amount){
+  award(keys,amount,null,true);
+  const d=today();if(!S.bon)S.bon={};if(!S.bon[d])S.bon[d]={};
+  keys.forEach(k=>{S.bon[d][k]=(S.bon[d][k]||0)+amount})}
+
+/* полоска: значення на початку дня cp.d → щодня + зароблене, − злив того дня */
+function gaugeSeries(k){
+  const t=today(),cp=(S.gauge||{})[k]||{d:(S.since||{})[k]||t,v:50};
+  let v=Math.min(100,Math.max(0,+cp.v||0)),d=cp.d,g=0;const end={};
+  while(d<=t&&g++<900){v=Math.min(100,v+earned(d,k));
+    if(d<t){v=Math.max(0,v-rhyAt(k,d).drain);end[d]=v}
+    d=shiftDay(d,1)}
+  return{end,now:Math.round(v)}}
+function gaugeNow(k){return gaugeSeries(k).now}
+
+function owed(iso,k,ctx){
+  const since=(S.since||{})[k],P=penAt(iso);
+  if(!since||iso<since||!P)return 0;
+  const r=rhyAt(k,iso);
+  if(r.mode==='free')return 0;
+  if(r.mode==='week'){
+    if(dowMon(iso)!==6)return 0;
+    const ws=shiftDay(iso,-6);if(ws<since)return 0;
+    const short=r.norm-weekPts(ws,k);if(short<=0)return 0;
+    let run=1;
+    for(let w=1;w<4;w++){const wsx=shiftDay(ws,-7*w);if(wsx<since)break;
+      const rr=rhyAt(k,weekEnd(wsx));if(rr.mode!=='week'||weekPts(wsx,k)>=rr.norm)break;run++}
+    return P*Math.ceil(short/10)*Math.min(run,4)}
+  if(r.mode==='state'){
+    const ser=ctx[k]||(ctx[k]=gaugeSeries(k));
+    if(!(iso in ser.end)||ser.end[iso]>0)return 0;
+    let run=0;
+    for(let i=0;i<4;i++){const d=shiftDay(iso,-i);
+      if(d<since||!(d in ser.end)||ser.end[d]>0)break;run++}
+    return P*Math.min(run,4)}
+  if(earned(iso,k)>0)return 0;
+  let run=0;
+  for(let i=0;i<4;i++){const d=shiftDay(iso,-i);if(d<since||earned(d,k)>0)break;run++}
+  return P*Math.min(run,4)}
+
+function reconcile(){
+  const t=today(),y=shiftDay(t,-1);
+  if(!S.startDay)return{lost:0,back:0};
+  if(!S.pen)S.pen={};
+  let lo=S.penThrough?shiftDay(S.penThrough,1):S.startDay;
+  const win=shiftDay(t,-8);if(win<lo)lo=win;
+  if(lo<S.startDay)lo=S.startDay;
+  const far=shiftDay(t,-400);if(lo<far)lo=far;
+  const ctx={};let lost=0,back=0,d=lo,g=0;
+  while(d<=y&&g++<420){
+    SK.forEach(k=>{const since=S.since[k];if(!since||d<since)return;
+      const o=owed(d,k,ctx),a=penOf(d,k),diff=o-a;
+      if(!diff)return;
+      /* повернення штрафу не вітає вдруге з рівнем, який уже був */
+      const n0=LVQ.length;award([k],-diff,null,true);if(diff<0)LVQ.length=n0;
+      if(!S.pen[d])S.pen[d]={};
+      if(o)S.pen[d][k]=o;else delete S.pen[d][k];
+      if(diff>0)lost+=diff;else back-=diff});
+    if(S.pen[d]&&!Object.keys(S.pen[d]).length)delete S.pen[d];
+    d=shiftDay(d,1)}
+  if(!S.penThrough||S.penThrough<y)S.penThrough=y;
+  return{lost,back}}
+
+/* тримаємо точку відліку полоски за ~2 тижні, щоб перерахунок був стабільним */
+function advanceGauges(){
+  const target=shiftDay(today(),-14);
+  SK.forEach(k=>{if(rhy(k).mode!=='state')return;const cp=S.gauge[k];if(!cp||cp.d>=target)return;
+    let v=cp.v,d=cp.d,g=0;
+    while(d<target&&g++<900){v=Math.max(0,Math.min(100,v+earned(d,k))-rhyAt(k,d).drain);d=shiftDay(d,1)}
+    S.gauge[k]={d:target,v}})}
+
+/* Нове правило діє з сьогодні. Зміна режиму — новий відлік для стати;
+   зміна лише норми чи зливу — просто нове значення далі, минуле не чіпається. */
+function setRhythm(k,nr){
+  const old=rhy(k),fresh=normRule(Object.assign({},old,nr));
+  if(old.mode===fresh.mode&&(fresh.mode!=='week'||old.norm===fresh.norm)
+    &&(fresh.mode!=='state'||old.drain===fresh.drain))return false;
+  const t=today();
+  if(old.mode!==fresh.mode){
+    let gv=50;
+    if(old.mode==='state')gv=Math.max(0,gaugeSeries(k).now-earned(t,k));
+    S.since[k]=t;
+    if(fresh.mode==='state')S.gauge[k]={d:t,v:gv};else delete S.gauge[k]}
+  if(!S.rhyHist)S.rhyHist={};
+  const h=rhyHist(k).filter(e=>e.d<t);h.push(Object.assign({d:t},fresh));
+  S.rhyHist[k]=h;S.rhythm[k]=fresh;
+  return true}
+
+/* тижнева серія — скільки тижнів поспіль виконано норму */
+function weekStreak(k){
+  let ws=weekStart(today()),n=0,g=0;
+  if(!weekMet(ws,k))ws=shiftDay(ws,-7);
+  while(weekMet(ws,k)&&g++<300){n++;ws=shiftDay(ws,-7)}
+  return n}
+function weekBest(k){
+  const keys=Object.keys(S.log).sort();if(!keys.length)return 0;
+  let ws=weekStart(keys[0]),end=weekStart(today()),best=0,run=0,g=0;
+  while(ws<=end&&g++<400){if(weekMet(ws,k)){run++;if(run>best)best=run}else if(ws<end)run=0;ws=shiftDay(ws,7)}
+  return best}
+
+/* ---------- відтворення минулого стану (для тіні на мапі й підсумку) ---------- */
+function totalXp(k){const st=S.stats[k];let v=st.xp;for(let l=1;l<st.lvl;l++)v+=need(l);return v}
+function lvlFromXp(v){let l=1;v=Math.max(0,v);while(l<60&&v>=need(l)){v-=need(l);l++}return l+v/need(l)}
+function xpAt(k,iso){let v=totalXp(k),d=shiftDay(iso,1),g=0;const t=today();
+  while(d<=t&&g++<420){v-=earned(d,k)-penOf(d,k)+bonOf(d,k);d=shiftDay(d,1)}
+  return Math.max(0,v)}
+function lvlNow(k){const st=S.stats[k];return st.lvl+st.xp/need(st.lvl)}
+
 function retroLabel(iso,i){
   if(i===1)return 'вчора';
   if(i===2)return 'позавчора';
   return WD[new Date(iso+'T12:00:00').getDay()]+' '+iso.slice(8)+'.'+iso.slice(5,7)}
 function retroAward(keys,xp,iso){
-  if(!S.log[iso])S.log[iso]=Object.fromEntries(SK.map(k=>[k,0]));
-  keys.forEach(k=>{const v=S.log[iso][k]||0;if(v>=0)return;
-    const st=S.stats[k];st.xp+=-v;S.log[iso][k]=0;if(st.miss>0)st.miss--;
-    while(st.xp>=need(st.lvl)){const was=rankOf(k,st.lvl);st.xp-=need(st.lvl);st.lvl++;
-      LVQ.push({k,lvl:st.lvl,was,now:rankOf(k,st.lvl)})}});
-  award(keys,xp,iso)}
+  award(keys,xp,iso);
+  return reconcile()}
 function syncStreaks(){
   SK.forEach(k=>{const st=S.stats[k];
+    if(rhy(k).mode==='week'){st.streak=weekStreak(k);
+      const b=weekBest(k);if(b>(st.wbest||0))st.wbest=b;return}
     st.streak=streakOf(k,STREAK_MIN);
     const b=maxRun(k,STREAK_MIN);if(b>(st.best||0))st.best=b})}
 
 /* ---------- автоматичні досягнення ---------- */
-const TRACKS=[];
-STATS.forEach(s=>{
-  TRACKS.push({id:'s10_'+s.k,kind:'streak',stat:s.k,thr:10,emo:s.emo,ck:s.k,
-    name:'10+ балів щодня · '+s.name,tiers:[7,14,30,60,100],xp:[20,40,80,150,300],reward:[s.k]});
-  TRACKS.push({id:'s20_'+s.k,kind:'streak',stat:s.k,thr:20,emo:s.emo,ck:s.k,
-    name:'20+ балів щодня · '+s.name,tiers:[5,14,30,60],xp:[30,70,140,260],reward:[s.k]});
-});
-TRACKS.push({id:'a10',kind:'streak',stat:'*',thr:10,emo:'🌟',
-  name:'10+ балів по всіх шести',tiers:[3,7,14,30,60],xp:[10,20,40,80,150],reward:SK.slice()});
-TRACKS.push({id:'a20',kind:'streak',stat:'*',thr:20,emo:'💫',
-  name:'20+ балів по всіх шести',tiers:[3,7,14,30],xp:[15,30,60,120],reward:SK.slice()});
-TRACKS.push({id:'lvl',kind:'level',emo:'🏔️',
-  name:'Усі стати рівня',tiers:[2,3,5,7,10],xp:[20,40,80,150,300],reward:SK.slice()});
-TRACKS.push({id:'tot',kind:'total',emo:'💎',
-  name:'Балів усього',tiers:[500,1500,4000,10000,25000],xp:[20,50,120,250,500],reward:SK.slice()});
+let TRACKS=[];
+function buildTracks(){
+  TRACKS=[];
+  STATS.forEach(s=>{
+    if(rhy(s.k).mode==='week'){
+      TRACKS.push({id:'w_'+s.k,kind:'wstreak',stat:s.k,emo:s.emo,ck:s.k,
+        name:'Тижнева норма · '+s.name,tiers:[2,4,8,16,26],xp:[20,40,80,150,300],reward:[s.k]});
+      return}
+    TRACKS.push({id:'s10_'+s.k,kind:'streak',stat:s.k,thr:10,emo:s.emo,ck:s.k,
+      name:'10+ балів щодня · '+s.name,tiers:[7,14,30,60,100],xp:[20,40,80,150,300],reward:[s.k]});
+    TRACKS.push({id:'s20_'+s.k,kind:'streak',stat:s.k,thr:20,emo:s.emo,ck:s.k,
+      name:'20+ балів щодня · '+s.name,tiers:[5,14,30,60],xp:[30,70,140,260],reward:[s.k]})});
+  const dk=dailyKeys();
+  TRACKS.push({id:'a10',kind:'streak',stat:'*',thr:10,emo:'🌟',
+    name:'10+ по всіх щоденних',tiers:[3,7,14,30,60],xp:[10,20,40,80,150],reward:dk.slice()});
+  TRACKS.push({id:'a20',kind:'streak',stat:'*',thr:20,emo:'💫',
+    name:'20+ по всіх щоденних',tiers:[3,7,14,30],xp:[15,30,60,120],reward:dk.slice()});
+  TRACKS.push({id:'lvl',kind:'level',emo:'🏔️',
+    name:'Усі стати рівня',tiers:[2,3,5,7,10],xp:[20,40,80,150,300],reward:SK.slice()});
+  TRACKS.push({id:'tot',kind:'total',emo:'💎',
+    name:'Балів усього',tiers:[500,1500,4000,10000,25000],xp:[20,50,120,250,500],reward:SK.slice()})}
+buildTracks();
 
 function trackCur(tr){
+  if(tr.kind==='wstreak')return weekStreak(tr.stat);
   if(tr.kind==='streak')return streakOf(tr.stat,tr.thr);
   if(tr.kind==='level')return Math.min(...SK.map(k=>S.stats[k].lvl));
   return SK.reduce((a,k)=>a+(S.stats[k].total||0),0)}
 function tierName(tr,t){
+  if(tr.kind==='wstreak')return tr.name+' — '+t+' тиж. поспіль';
   if(tr.kind==='streak')return tr.name+' — '+t+' дн.';
   if(tr.kind==='level')return 'Усі стати рівня '+t;
   return t+' балів усього'}
 function achTotal(){return TRACKS.reduce((a,t)=>a+t.tiers.length,0)}
-function achDone(){return Object.keys(S.ach||{}).length}
+function achDone(){const a=S.ach||{};
+  return TRACKS.reduce((n,tr)=>n+tr.tiers.filter(t=>a[tr.id+'@'+t]).length,0)}
 
 function backfillAch(){
   if(S.achInit)return;
@@ -827,15 +1121,18 @@ function checkAch(){
     TRACKS.forEach(tr=>{const c=trackCur(tr);
       tr.tiers.forEach((t,i)=>{const key=tr.id+'@'+t;
         if(c>=t&&!S.ach[key]){S.ach[key]=today();
-          award(tr.reward,tr.xp[i],null,true);
+          awardBonus(tr.reward,tr.xp[i]);
           got.push({tr,tier:t,xp:tr.xp[i],n:tr.reward.length});any=true}})});
     if(!any)break}
   if(got.length){AQ.push(...got);save()}}
 
 /* Скидає тільки прогрес. Завдання, мої досягнення, налаштування й теми лишаються. */
 function resetProgress(){
-  SK.forEach(k=>{S.stats[k]={xp:0,lvl:1,total:0,streak:0,best:0,miss:0}});
+  SK.forEach(k=>{S.stats[k]={xp:0,lvl:1,total:0,streak:0,best:0,wbest:0,miss:0}});
   S.log={};S.ach={};S.achInit=0;S.lastDay=null;
+  S.pen={};S.bon={};S.qDone={};S.recapPending=null;S.recapSeen=weekStart(today());
+  S.startDay=today();S.penThrough=shiftDay(today(),-1);S.since={};S.gauge={};
+  SK.forEach(k=>S.since[k]=today());migrate(S,null);
   S.fortDay=null;S.fortText='';S.fortSeen=[];
   (S.tasks||[]).forEach(t=>{t.doneOn=null;t.count=0});
   (S.bonuses||[]).forEach(b=>{b.doneOn=null;b.count=0});
@@ -931,13 +1228,14 @@ function pickQuest(force){
   save();return true}
 
 /* нараховує/знімає різницю так, щоб виплачено було рівно stepPaid */
+function markQuest(done){if(!S.qDone)S.qDone={};const d=today();if(done)S.qDone[d]=1;else delete S.qDone[d]}
 function questPayTo(prog){
   const r=S.questRef;if(!r)return;
   const total=questTotal(r),goal=Math.max(1,r.goal||1);
   const want=Math.round(total*Math.min(Math.max(prog,0),goal)/goal);
   const diff=want-(S.questPaid||0);
   if(diff)award(r.stats,diff);
-  S.questProg=prog;S.questPaid=want}
+  S.questProg=prog;S.questPaid=want;markQuest(prog>=goal)}
 
 function questStep(dir){
   const r=S.questRef;if(!r||r.kind!=='own')return;
@@ -958,7 +1256,7 @@ function questSyncCollect(){
     award(r.stats,diff);
     S.questPaid=want;
     if(diff>0)setTimeout(()=>toast('Квест зібрано · +'+diff),260)}
-  S.questProg=Math.min(n,goal)}
+  S.questProg=Math.min(n,goal);markQuest(full)}
 
 /* бонус за квест, привʼязаний до завдання */
 function questSyncLink(){
@@ -966,9 +1264,9 @@ function questSyncLink(){
   const t=questTask(r);
   const on=!!(t&&t.doneOn);
   if(on&&!(S.questProg>0)){const b=questBonus(r);if(b)award(t.stats,b);
-    S.questProg=1;S.questPaid=b;if(b)setTimeout(()=>toast('+'+b+' бонус за квест дня'),260)}
+    S.questProg=1;S.questPaid=b;markQuest(true);if(b)setTimeout(()=>toast('+'+b+' бонус за квест дня'),260)}
   else if(!on&&S.questProg>0){if(S.questPaid)award(r.stats,-S.questPaid);
-    S.questProg=0;S.questPaid=0}}
+    S.questProg=0;S.questPaid=0;markQuest(false)}}
 
 function renderQuest(){
   const c=document.getElementById('questCard'),r=S.questRef;
@@ -982,6 +1280,10 @@ function renderQuest(){
   let h='<div class="ic">'+esc(r.emo||'⭐')+'</div><div class="qb">';
   h+='<div class="lb">Квест дня'+(questMul()!==1?' · ×'+String(questMul()).replace('.',',') :'')+'</div>';
   h+='<div class="tn">'+esc(r.name)+'</div>';
+  if(r.kind==='link'&&!t){c.classList.add('qdone');
+    c.innerHTML='<div class="ic">'+esc(r.emo||'⭐')+'</div><div class="qb"><div class="lb">Квест дня</div>'
+      +'<div class="tn">'+esc(r.name)+'</div><div class="td">Завдання видалено — сьогодні цей квест недоступний. '
+      +'Завтра буде новий.</div></div>';return}
   if(r.desc)h+='<div class="td">'+esc(r.desc)+'</div>';
   else if(r.kind==='link'&&t)h+='<div class="td">Завдання зі списку — сьогодні дає підвищені бали.</div>';
   h+='<div class="qm">';
@@ -1003,7 +1305,10 @@ function renderQuest(){
   if(pl){const first=ST[(r.stats||[])[0]];
     if(prog&&first){pl.style.borderColor=first.color;pl.style.background=goal>1?first.soft:first.color;
       if(goal>1)pl.style.color=first.color}
-    pl.onclick=()=>questStep(goal>1?1:(done?-1:1))}
+    pl.onclick=()=>{const dir=goal>1?1:(done?-1:1);
+      if(dir>0&&!done){const st=ST[(r.stats||[])[0]];
+        floatPts(pl,'+'+Math.round(questTotal(r)/goal),st?st.color:TV['--accent'])}
+      questStep(dir)}}
   const mn=c.querySelector('#qMinus');
   if(mn)mn.onclick=()=>questStep(-1)}
 
@@ -1038,28 +1343,21 @@ function renderQuestCollect(c,r){
 
 function rollover(){
   const t=today();
-  if(!S.lastDay){S.lastDay=t;save();return}
-  if(S.lastDay===t)return;
-  let cur=S.lastDay,guard=0,lost=0;
-  while(cur<t&&guard++<400){
-    const day=S.log[cur]||Object.fromEntries(SK.map(k=>[k,0]));
-    SK.forEach(k=>{const st=S.stats[k];
-      if((day[k]||0)>0){st.miss=0}
-      else{st.miss=(st.miss||0)+1;
-        if(S.penalty>0){
-          const pen=S.penalty*Math.min(st.miss,4);
-          st.xp-=pen;lost+=pen;
-          if(!S.log[cur])S.log[cur]=Object.fromEntries(SK.map(x=>[x,0]));
-          S.log[cur][k]=(S.log[cur][k]||0)-pen;
-          while(st.xp<0){if(st.lvl>1){st.lvl--;st.xp+=need(st.lvl)}else{st.xp=0;break}}}}});
-    const n=new Date(cur+'T12:00:00');n.setDate(n.getDate()+1);cur=n.toISOString().slice(0,10)}
-  S.tasks=S.tasks.filter(x=>!(x.once&&x.doneOn));
-  S.tasks.forEach(x=>{x.doneOn=null;x.count=0});
-  S.qEvt=[];S.questStart=0;
-  const keys=Object.keys(S.log).sort();
-  if(keys.length>200)keys.slice(0,keys.length-200).forEach(k=>delete S.log[k]);
+  if(!S.startDay){S.startDay=t;SK.forEach(k=>{if(!S.since[k])S.since[k]=t});migrate(S,null)}
+  const newDay=!!S.lastDay&&S.lastDay!==t;
+  if(newDay&&weekStart(t)!==weekStart(S.lastDay)){
+    const ws=shiftDay(weekStart(t),-7);
+    if(S.recapSeen!==ws&&weekHasData(ws))S.recapPending=ws}
+  if(newDay){
+    S.tasks=S.tasks.filter(x=>!(x.once&&x.doneOn));
+    S.tasks.forEach(x=>{x.doneOn=null;x.count=0});
+    S.qEvt=[];S.questStart=0}
+  const r=reconcile();
+  advanceGauges();
+  const cut=shiftDay(t,-400);
+  ['log','pen','bon','qDone'].forEach(f=>Object.keys(S[f]||{}).forEach(k=>{if(k<cut)delete S[f][k]}));
   S.lastDay=t;save();
-  if(lost)setTimeout(()=>toast('Втрачено '+lost+' балів за дні без прогресу'),800)}
+  if(newDay&&r.lost)setTimeout(()=>toast('Штраф: −'+r.lost+' балів за пропущене'),800)}
 
 /* ---------- fortune ---------- */
 function pickFortune(){
@@ -1087,7 +1385,7 @@ function showFortuneModal(){
 /* ---------- render ---------- */
 function todayLog(){return S.log[today()]||Object.fromEntries(SK.map(k=>[k,0]))}
 function render(){syncStreaks();checkAch();
-  renderTop();renderRadar();renderFortune();renderWeek();renderGrid();
+  renderTop();renderRadar();renderFortune();renderWeek();renderGrid();renderBackup();
   questSyncLink();questSyncCollect();renderQuest();
   renderFilters();renderSort();renderTasks();renderMyAch();renderAch();flushLevels()}
 
@@ -1097,10 +1395,11 @@ function weekData(){
   const days=[],prev=[];
   for(let i=6;i>=0;i--)days.push(shiftDay(today(),-i));
   for(let i=13;i>=7;i--)prev.push(shiftDay(today(),-i));
-  const sum=a=>a.reduce((x,d)=>x+SK.reduce((y,k)=>y+dayVal(d,k),0),0);
+  const sum=a=>a.reduce((x,d)=>x+SK.reduce((y,k)=>y+earned(d,k),0)-penDay(d),0);
   const byStat={};SK.forEach(k=>byStat[k]=days.reduce((a,d)=>a+dayVal(d,k),0));
   return{days,total:sum(days),prev:sum(prev),byStat,
     active:days.filter(d=>SK.some(k=>dayVal(d,k)>0)).length,
+    pen:days.reduce((a,d)=>a+penDay(d),0),
     full:days.filter(d=>qual(d,'*',STREAK_MIN)).length}}
 
 function renderWeek(){
@@ -1126,7 +1425,8 @@ function renderWeek(){
   if(w.total>0){
     h+='<div class="wk-l">Найбільше — <b>'+ST[top].emo+' '+ST[top].name+'</b> ('+w.byStat[top]+')'
       +', найменше — <b>'+ST[low].emo+' '+ST[low].name+'</b> ('+w.byStat[low]+').</div>';
-    h+='<div class="wk-l">Днів із прогресом: <b>'+w.active+' з 7</b> · повних днів (10+ по всіх): <b>'+w.full+'</b>.</div>';
+    h+='<div class="wk-l">Днів із прогресом: <b>'+w.active+' з 7</b> · повних днів (10+ по всіх щоденних): <b>'+w.full+'</b>'
+      +(w.pen?' · штрафи: <b style="color:'+TV['--bad']+'">−'+w.pen+'</b>':'')+'.</div>';
   } else h+='<div class="wk-l">За сім днів поки порожньо. Почни з одного завдання.</div>';
   c.innerHTML=h}
 
@@ -1140,13 +1440,13 @@ function toggleBonus(id,dir){
   const b=(S.bonuses||[]).find(x=>x.id===id);if(!b)return;
   const xp=bonusXp(b),keys=bonusKeys(b);
   if(b.repeat){
-    if(dir<0){if(!(b.count>0))return;b.count--;award(keys,-xp,null,true);
+    if(dir<0){if(!(b.count>0))return;b.count--;awardBonus(keys,-xp);
       if(!b.count)b.doneOn=null;save();render();toast('Мінус один')}
-    else{b.count=(b.count||0)+1;b.doneOn=today();award(keys,xp,null,true);save();render();
+    else{b.count=(b.count||0)+1;b.doneOn=today();awardBonus(keys,xp);save();render();
       toast('+'+xp+' · '+b.name+' — '+b.count+'-й раз')}
     return}
-  if(b.doneOn){b.doneOn=null;award(keys,-xp,null,true);save();render();toast('Відмітку знято')}
-  else{b.doneOn=today();award(keys,xp,null,true);save();render();
+  if(b.doneOn){b.doneOn=null;awardBonus(keys,-xp);save();render();toast('Відмітку знято')}
+  else{b.doneOn=today();awardBonus(keys,xp);save();render();
     toast('+'+xp+' · '+b.name)}}
 
 function renderMyAch(){
@@ -1184,7 +1484,10 @@ function renderMyAch(){
   box.innerHTML=h;
   box.querySelectorAll('.ach.mine').forEach(el=>{
     const id=el.dataset.id;
-    el.querySelector('[data-act=tog]').onclick=e=>{e.stopPropagation();toggleBonus(id,1)};
+    el.querySelector('[data-act=tog]').onclick=e=>{e.stopPropagation();
+      const b=(S.bonuses||[]).find(x=>x.id===id),k0=b&&bonusKeys(b)[0];
+      if(b&&(b.repeat||!b.doneOn))floatPts(e.currentTarget,'+'+bonusXp(b),k0?ST[k0].color:TV['--accent']);
+      toggleBonus(id,1)};
     const mn=el.querySelector('[data-act=minus]');
     if(mn)mn.onclick=e=>{e.stopPropagation();toggleBonus(id,-1)};
     el.querySelector('[data-act=edit]').onclick=()=>openBonus((S.bonuses||[]).find(x=>x.id===id))})}
@@ -1233,7 +1536,7 @@ function openBonus(b){
   const del=modal.querySelector('#bDel');
   if(del)del.onclick=()=>{
     const n=bonusCount(b);
-    if(n)award(bonusKeys(b),-bonusXp(b)*n,null,true);
+    if(n)awardBonus(bonusKeys(b),-bonusXp(b)*n);
     S.bonuses=(S.bonuses||[]).filter(x=>x.id!==b.id);save();render();close();toast('Видалено')};
   modal.querySelector('#bSave').onclick=()=>{
     const n=modal.querySelector('#bName').value.trim();if(!n){toast('Впиши назву');return}
@@ -1241,9 +1544,9 @@ function openBonus(b){
     const nk=SK.filter(k=>dr.stats.includes(k));
     const had=bonusCount(b);
     if(had){/* уже відмічене — знімаємо старе нарахування й ставимо нове */
-      award(bonusKeys(b),-bonusXp(b)*had,null,true);
+      awardBonus(bonusKeys(b),-bonusXp(b)*had);
       const keep=dr.repeat?had:1;
-      award(nk,nx*keep,null,true)}
+      awardBonus(nk,nx*keep)}
     b.name=n;b.emo=dr.emo;b.stats=nk;b.xp=nx;b.repeat=dr.repeat;
     if(dr.repeat)b.count=had||0;
     else{b.count=0;if(had&&!b.doneOn)b.doneOn=today()}
@@ -1391,20 +1694,26 @@ function openQuest(q){
 function renderAch(){
   const sc=document.getElementById('strkCard');
   let h='<div class="strk">';
-  STATS.forEach(s=>{const a=streakOf(s.k,10),b=streakOf(s.k,20),st=S.stats[s.k];
+  STATS.forEach(s=>{const st=S.stats[s.k],r=rhy(s.k);
+    if(r.mode==='week'){const wa=weekPts(weekStart(today()),s.k),ws=weekStreak(s.k),ok=wa>=r.norm;
+      h+='<div class="sr"><span>'+s.emo+'</span><span class="nm">'+s.name+'</span>'
+        +'<span class="p" style="color:'+(ok?s.color:TV['--dim'])+';background:'+(ok?s.soft:'transparent')+'">тиждень · '+wa+'/'+r.norm+'</span>'
+        +'<span class="p" style="color:'+(ws?s.color:TV['--dim'])+';background:'+(ws?s.soft:'transparent')+'">поспіль · '+ws+'</span>'
+        +'<span class="rec">рек. '+(st.wbest||0)+'</span></div>';return}
+    const a=streakOf(s.k,10),b=streakOf(s.k,20);
     h+='<div class="sr"><span>'+s.emo+'</span><span class="nm">'+s.name+'</span>'
       +'<span class="p" style="color:'+(a?s.color:TV['--dim'])+';background:'+(a?s.soft:'transparent')+'">10+ · '+a+'</span>'
       +'<span class="p" style="color:'+(b?s.color:TV['--dim'])+';background:'+(b?s.soft:'transparent')+'">20+ · '+b+'</span>'
       +'<span class="rec">рек. '+(st.best||0)+'</span></div>'});
   const a10=streakOf('*',10),a20=streakOf('*',20);
   h+='<div class="sr" style="border-top:2px dashed var(--edge);padding-top:7px;margin-top:2px">'
-    +'<span>🌟</span><span class="nm">Усі шість одразу</span>'
+    +'<span>🌟</span><span class="nm">Усі щоденні одразу</span>'
     +'<span class="p" style="color:'+(a10?TV['--accent']:TV['--dim'])+'">10+ · '+a10+'</span>'
     +'<span class="p" style="color:'+(a20?TV['--accent']:TV['--dim'])+'">20+ · '+a20+'</span>'
     +'<span class="rec"></span></div>';
   h+='</div>';
   sc.innerHTML=h;
-  document.getElementById('strkNote').textContent='день рахується від '+STREAK_MIN+' балів';
+  document.getElementById('strkNote').textContent='день — від '+STREAK_MIN+' балів, тиждень — за нормою';
 
   const box=document.getElementById('achList'),head=document.getElementById('autoHead');
   box.innerHTML='';
@@ -1440,44 +1749,88 @@ function renderTop(){
   const lg=todayLog(),tot=SK.reduce((a,k)=>a+Math.max(0,lg[k]||0),0);
   document.getElementById('hsub').textContent='сумарний рівень '+SK.reduce((a,k)=>a+S.stats[k].lvl,0);
   document.getElementById('sumTitle').textContent=tot?('+'+tot+' балів сьогодні'):'Сьогодні ще нічого';
-  const zero=SK.filter(k=>!(lg[k]>0));
-  const risky=zero.filter(k=>(S.stats[k].miss||0)>=1);
-  let txt;
-  if(!zero.length)txt='Усі шість стат мають прогрес — сьогодні без штрафів.';
-  else if(risky.length)txt='Штраф росте: '+risky.map(k=>ST[k].name.toLowerCase()+' ('+S.stats[k].miss+' дн.)').join(', ')+'.';
-  else txt='Без прогресу поки: '+zero.map(k=>ST[k].name.toLowerCase()).join(', ')+'.';
-  document.getElementById('sumText').textContent=txt;
+  const y=shiftDay(today(),-1),zero=[],risky=[],notes=[];
+  SK.forEach(k=>{const r=rhy(k),nm=ST[k].name.toLowerCase(),since=(S.since||{})[k];
+    if(r.mode==='day'){if(lg[k]>0)return;
+      if(since&&y>=since&&earned(y,k)===0)risky.push(nm);else zero.push(nm)}
+    else if(r.mode==='week'){const a=weekPts(weekStart(today()),k);
+      if(a<r.norm)notes.push(ST[k].name+' — '+a+' з '+r.norm+' балів цього тижня')}
+    else if(r.mode==='state'){const g=gaugeNow(k);if(g<40)notes.push(ST[k].name+' — полоска '+g+'%')}});
+  const parts=[];
+  if(risky.length)parts.push('Другий день без балів (штраф більший): '+risky.join(', ')+'.');
+  if(zero.length)parts.push('Ще без прогресу: '+zero.join(', ')+'.');
+  if(notes.length)parts.push(notes.join(' · ')+'.');
+  document.getElementById('sumText').textContent=parts.length?parts.join(' '):'Усе за планом — сьогодні без штрафів.';
   const c=document.getElementById('todayChips');c.innerHTML='';
   SK.forEach(k=>{if(!(lg[k]>0))return;const s=ST[k];
     const d=document.createElement('span');d.className='tchip';
     d.style.color=s.color;d.style.borderColor=s.line;d.style.background=s.soft;
     d.textContent=s.emo+' +'+lg[k];c.appendChild(d)})}
 
+const REDUCED=()=>!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+let RAD_PREV=null,RAD_ANIM=0;
+function ghostDays(){return S.ghost==='m'?30:7}
+function ghostVals(){
+  if(S.ghost==='off')return null;
+  const iso=shiftDay(today(),-ghostDays());
+  if(!S.startDay||S.startDay>iso)return null;
+  return SK.map(k=>lvlFromXp(xpAt(k,iso)))}
+
 function renderRadar(){
-  const svg=document.getElementById('radar'),cx=192,cy=156,R=92;
-  const max=Math.max(4,...SK.map(k=>S.stats[k].lvl));
-  const pt=(i,r)=>{const a=-Math.PI/2+i*Math.PI/3;return[cx+Math.cos(a)*r,cy+Math.sin(a)*r]};
+  const to=SK.map(k=>lvlNow(k)),gh=ghostVals();
+  const from=(RAD_PREV&&RAD_PREV.length===to.length)?RAD_PREV:to;RAD_PREV=to;
+  cancelAnimationFrame(RAD_ANIM);
+  renderRadarLegend(gh);
+  if(REDUCED()||from.every((v,i)=>Math.abs(v-to[i])<1e-4)){drawRadar(to,gh);return}
+  const t0=performance.now(),D=700;
+  const step=now=>{const p=Math.min(1,(now-t0)/D),e=1-Math.pow(1-p,3);
+    drawRadar(from.map((v,i)=>v+(to[i]-v)*e),gh);if(p<1)RAD_ANIM=requestAnimationFrame(step)};
+  drawRadar(from,gh);RAD_ANIM=requestAnimationFrame(step)}
+
+function drawRadar(vals,gh){
+  const svg=document.getElementById('radar'),cx=192,cy=156,R=92,N=SK.length;
+  const max=Math.max(4,Math.ceil(Math.max(...vals,...(gh||[0]))));
+  const pt=(i,r)=>{const a=-Math.PI/2+i*2*Math.PI/N;return[cx+Math.cos(a)*r,cy+Math.sin(a)*r]};
+  const rad=v=>Math.max(9,R*(v/max));
+  const poly=a=>a.map((v,i)=>pt(i,rad(v)).map(n=>n.toFixed(1)).join(',')).join(' ');
   const F='font-family:Fredoka,sans-serif';
   let h='';
   [0.25,0.5,0.75,1].forEach(f=>{h+='<polygon points="'+SK.map((_,i)=>pt(i,R*f).map(n=>n.toFixed(1)).join(',')).join(' ')
     +'" fill="'+(f===1?TV['--rad-face']:'none')+'" stroke="'+TV['--rad-grid']+'" stroke-width="2"/>'});
   SK.forEach((_,i)=>{const[x,y]=pt(i,R);
     h+='<line x1="'+cx+'" y1="'+cy+'" x2="'+x.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="'+TV['--rad-spoke']+'" stroke-width="2"/>'});
-  const pts=SK.map((k,i)=>pt(i,Math.max(9,R*(S.stats[k].lvl/max))).map(n=>n.toFixed(1)).join(',')).join(' ');
-  h+='<polygon points="'+pts+'" fill="'+TV['--rad-fill']+'" fill-opacity=".35" stroke="'+TV['--rad-line']+'" stroke-width="3" stroke-linejoin="round"/>';
-  SK.forEach((k,i)=>{const[x,y]=pt(i,Math.max(9,R*(S.stats[k].lvl/max)));
-    h+='<rect x="'+(x-4).toFixed(1)+'" y="'+(y-4).toFixed(1)+'" width="8" height="8" fill="'+ST[k].color
+  if(gh)h+='<polygon class="ghost" points="'+poly(gh)+'" fill="none" stroke="'+TV['--ink-2']+'" stroke-opacity=".55" '
+    +'stroke-width="2" stroke-dasharray="5 4" stroke-linejoin="round"/>';
+  h+='<polygon points="'+poly(vals)+'" fill="'+TV['--rad-fill']+'" fill-opacity=".38" stroke="'+TV['--rad-line']
+    +'" stroke-width="3" stroke-linejoin="round"/>';
+  SK.forEach((k,i)=>{const[x,y]=pt(i,rad(vals[i]));
+    h+='<rect x="'+(x-4.5).toFixed(1)+'" y="'+(y-4.5).toFixed(1)+'" width="9" height="9" rx="1.5" fill="'+ST[k].color
       +'" stroke="'+TV['--card']+'" stroke-width="1.5"/>'});
   SK.forEach((k,i)=>{
     const[x,y]=pt(i,R+26),s=ST[k],lv=S.stats[k].lvl;
     const anchor=Math.abs(x-cx)<6?'middle':(x>cx?'start':'end');
     const ox=anchor==='middle'?0:(x>cx?-4:4);
+    const up=gh?lv-Math.floor(gh[i]):0;
     h+='<text x="'+(x+ox).toFixed(1)+'" y="'+(y-3).toFixed(1)+'" text-anchor="'+anchor+'" font-size="17">'+s.emo+'</text>';
-    h+='<text x="'+(x+ox).toFixed(1)+'" y="'+(y+13).toFixed(1)+'" text-anchor="'+anchor+'" font-size="12.5" style="'+F
+    h+='<text x="'+(x+ox).toFixed(1)+'" y="'+(y+13).toFixed(1)+'" text-anchor="'+anchor+'" font-size="'+(N>7?11.5:12.5)+'" style="'+F
       +'" fill="'+TV['--rad-label']+'">'+s.name+'</text>';
     h+='<text x="'+(x+ox).toFixed(1)+'" y="'+(y+27).toFixed(1)+'" text-anchor="'+anchor+'" font-size="13" style="'+F
-      +'" font-weight="600" fill="'+s.color+'">'+lv+'</text>'});
+      +'" font-weight="600" fill="'+s.color+'">'+lv
+      +(up>0?'<tspan font-size="10.5" fill="'+TV['--good']+'" dx="3">+'+up+'</tspan>':'')+'</text>'});
   svg.innerHTML=h}
+
+function renderRadarLegend(gh){
+  const lg=document.getElementById('radarLg');if(!lg)return;
+  const lb={w:'тиждень тому',m:'місяць тому'};
+  let h='<span class="k"><span class="sw"></span>зараз</span>';
+  if(gh)h+='<span class="k"><span class="sw g"></span>'+lb[S.ghost]+'</span>';
+  h+='<span class="seg2">'+[['w','тиждень'],['m','місяць'],['off','без тіні']].map(o=>
+    '<button data-g="'+o[0]+'" class="'+(S.ghost===o[0]?'on':'')+'">'+o[1]+'</button>').join('')+'</span>';
+  if(!gh&&S.ghost!=='off'&&S.startDay){
+    const left=Math.max(1,Math.round((new Date(shiftDay(S.startDay,ghostDays()))-new Date(today()))/864e5));
+    h+='<span class="hint">Тінь того, якою ти була '+lb[S.ghost]+', зʼявиться через '+left+' дн.</span>'}
+  lg.innerHTML=h;
+  lg.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{S.ghost=b.dataset.g;save();RAD_PREV=null;renderRadar()})}
 
 function segBar(pct,color,line){
   let h='<div class="seg">';
@@ -1497,9 +1850,51 @@ function renderGrid(){
       +'<div class="sc-rank">'+rankOf(s.k,st.lvl).full+'</div>'
       +segBar(pct,s.color,s.line)
       +'<div class="sc-meta"><span>'+st.xp+' / '+nd+'</span><span class="sc-gain" style="color:'
-      +(gain>0?s.color:(gain<0?TV['--bad']:TV['--dim']))+'">'+(gain>0?'+'+gain:(gain<0?gain:'—'))+'</span></div>';
+      +(gain>0?s.color:(gain<0?TV['--bad']:TV['--dim']))+'">'+(gain>0?'+'+gain:(gain<0?gain:'—'))+'</span></div>'
+      +rhythmRow(s);
     b.onclick=()=>{filter=s.k;render();goTab('tasks')};
     g.appendChild(b)})}
+
+function floatPts(el,txt,color){
+  if(!el||REDUCED())return;
+  const r=el.getBoundingClientRect();if(!r.width&&!r.height)return;
+  const f=document.createElement('div');f.className='flt';f.textContent=txt;f.style.color=color;
+  f.style.left=(r.left+r.width/2)+'px';f.style.top=(r.top-4)+'px';
+  document.body.appendChild(f);setTimeout(()=>f.remove(),950)}
+
+function confetti(cols){
+  if(REDUCED())return;
+  const box=document.createElement('div');box.className='cf';
+  for(let i=0;i<48;i++){const q=document.createElement('i');
+    q.style.left=(Math.random()*100).toFixed(1)+'%';q.style.background=cols[i%cols.length];
+    q.style.width=(6+Math.random()*6).toFixed(0)+'px';
+    q.style.animationDelay=(Math.random()*.35).toFixed(2)+'s';
+    q.style.animationDuration=(1.2+Math.random()*1).toFixed(2)+'s';
+    q.style.setProperty('--dx',((Math.random()-.5)*140).toFixed(0)+'px');
+    q.style.setProperty('--rot',((Math.random()-.5)*720).toFixed(0)+'deg');
+    box.appendChild(q)}
+  document.body.appendChild(box);setTimeout(()=>box.remove(),2800)}
+
+function rhythmRow(s){
+  const r=rhy(s.k);
+  if(r.mode==='week'){const a=weekPts(weekStart(today()),s.k),pc=Math.min(100,Math.round(a/r.norm*100));
+    return '<div class="sc-r"><span>тиждень</span><span class="gb"><i style="width:'+pc+'%;background:'+s.color+'"></i></span>'
+      +'<span style="color:'+(a>=r.norm?s.color:'inherit')+'">'+a+'/'+r.norm+'</span></div>'}
+  if(r.mode==='free')return '<div class="sc-r"><span>без штрафів</span></div>';
+  if(r.mode==='state'){const g=gaugeNow(s.k),col=g<25?TV['--bad']:s.color;
+    return '<div class="sc-r"><span>стан</span><span class="gb"><i style="width:'+g+'%;background:'+col+'"></i></span>'
+      +'<span style="color:'+(g<25?TV['--bad']:'inherit')+'">'+g+'%</span></div>'}
+  return ''}
+
+function renderBackup(){
+  const c=document.getElementById('bkCard');if(!c)return;
+  const used=Object.keys(S.log||{}).length;
+  const ago=S.lastExport?Math.round((new Date(today())-new Date(S.lastExport))/864e5):null;
+  if(!(ago==null?used>=5:ago>=7)){c.style.display='none';return}
+  c.style.display='flex';
+  c.innerHTML='<span class="ic">💾</span><span>'+(ago==null?'Копії прогресу ще немає. Збережи файл — з нього можна все відновити.'
+    :'Остання копія прогресу — '+ago+' дн. тому.')+'</span><button id="bkBtn">Зберегти</button>';
+  c.querySelector('#bkBtn').onclick=()=>{doExport();renderBackup()}}
 
 function renderFilters(){
   const f=document.getElementById('filters');f.innerHTML='';
@@ -1556,12 +1951,13 @@ function taskRow(t){
     const c=document.createElement('button');c.className='cnt'+(t.count?' has':'');
     c.textContent=t.count?'×'+t.count:'+';
     if(t.count){c.style.borderColor=c0.color;c.style.background=c0.soft;c.style.color=c0.color}
-    c.onclick=()=>{t.count=(t.count||0)+1;t.doneOn=today();award(t.stats,xp);qEvtAdd(t);save();render()};
+    c.onclick=()=>{t.count=(t.count||0)+1;t.doneOn=today();award(t.stats,xp);qEvtAdd(t);
+      floatPts(c,'+'+xp,c0.color);save();render()};
     el.appendChild(c)}
   else{const c=document.createElement('button');c.className='check';c.textContent='✓';
     if(t.doneOn){c.style.background=c0.color;c.style.borderColor=c0.color}
     c.onclick=()=>{if(t.doneOn){award(t.stats,-xp);t.doneOn=null;t.count=0;qEvtDel(t)}
-      else{t.doneOn=today();t.count=1;award(t.stats,xp);qEvtAdd(t)}save();render()};
+      else{t.doneOn=today();t.count=1;award(t.stats,xp);qEvtAdd(t);floatPts(c,'+'+xp,c0.color)}save();render()};
     el.appendChild(c)}
   const b=document.createElement('div');b.className='tb';
   b.innerHTML='<div class="tn">'+esc(t.name)+'</div>';
@@ -1601,13 +1997,16 @@ function flushLevels(){
   let h='<div class="lv">';
   h+='<div class="lv-emo">'+e.now.emo+'</div>';
   h+='<div class="lv-stat" style="color:'+s.color+'">'+s.emo+' '+s.name+'</div>';
-  if(fl)h+='<div class="lv-fl">'+esc(fl).replace(/\n/g,'<br><br>')+'</div>';
+  const txt=fl||('Тепер ти '+e.now.name+'. '+e.now.emo);
+  h+='<div class="lv-fl">'+esc(txt).replace(/\n/g,'<br><br>')+'</div>';
   h+='<div class="lv-n">рівень '+e.lvl+'</div></div>';
   h+='<div class="mrow"><button class="btn pri" id="lvOk">Далі</button></div>';
-  open(h);modal.querySelector('#lvOk').onclick=()=>{close();setTimeout(flushLevels,180)}}
+  open(h);confetti([s.color,s.line,TV['--rad-line'],s.color,TV['--card']]);
+  modal.querySelector('#lvOk').onclick=()=>{close();setTimeout(flushLevels,180)}}
 
 function flushAch(){
-  if(!AQ.length||veil.classList.contains('on'))return;
+  if(veil.classList.contains('on'))return;
+  if(!AQ.length){maybeRecap();return}
   if(AQ.length>=3){
     const all=AQ.splice(0,AQ.length);
     let h='<div class="lv"><div class="lv-emo">🏅</div>'
@@ -1687,23 +2086,176 @@ function quickAdd(){const i=document.getElementById('quickAdd'),v=i.value.trim()
   const t={id:uid(),name:v,diff:'low',stats:[filter==='all'?'str':filter],multi:false,once:false,doneOn:null,count:0};
   S.tasks.unshift(t);i.value='';save();render();openTask(t)}
 
-document.getElementById('btnHist').onclick=()=>{
-  const days=[],t=new Date();t.setHours(12,0,0,0);
-  for(let i=13;i>=0;i--){const d=new Date(t);d.setDate(d.getDate()-i);days.push(d.toISOString().slice(0,10))}
-  let h='<h3>Останні 14 днів</h3><div class="f">';
-  days.forEach(iso=>{const lg=S.log[iso]||{},tot=SK.reduce((a,k)=>a+(lg[k]||0),0);
-    h+='<div class="hrow"><span class="hdate">'+iso.slice(5).replace('-','.')+'</span><span class="hbars">';
-    SK.forEach(k=>{const v=Math.max(0,lg[k]||0),hh=Math.min(16,Math.round(v/40*16));
-      h+='<span class="hb" style="height:'+Math.max(3,hh)+'px;background:'+(v?ST[k].color:TV['--hb-empty'])+'"></span>'});
-    h+='</span><span class="htot" style="color:'+(tot>0?TV['--good']:(tot<0?TV['--bad']:TV['--dim']))+'">'
-      +(tot>0?'+':'')+tot+'</span></div>'});
-  h+='</div><div class="f"><label>Твої звання</label><div style="font-size:13px;line-height:1.85">';
-  STATS.forEach(s=>{const st=S.stats[s.k];
+const MONTHS_G=['січня','лютого','березня','квітня','травня','червня','липня','серпня','вересня','жовтня','листопада','грудня'];
+const MONTHS_S=['січ','лют','бер','кві','тра','чер','лип','сер','вер','жов','лис','гру'];
+const WD_FULL=['понеділок','вівторок','середа','четвер','пʼятниця','субота','неділя'];
+function dmy(iso){return +iso.slice(8)+' '+MONTHS_G[+iso.slice(5,7)-1]}
+function weekRange(ws){const we=weekEnd(ws);
+  return ws.slice(5,7)===we.slice(5,7)?(+ws.slice(8))+'–'+dmy(we):dmy(ws)+' – '+dmy(we)}
+function dayPts(iso,k){return k==='all'?SK.reduce((a,x)=>a+earned(iso,x),0):earned(iso,k)}
+function weekHasData(ws){for(let i=0;i<7;i++){const d=shiftDay(ws,i);
+  if(SK.some(k=>earned(d,k)>0)||penDay(d)>0)return true}return false}
+
+function heatmapHtml(f){
+  const t=today(),end=weekStart(t),start=shiftDay(end,-52*7);
+  let mx=0;for(let d=start;d<=t;d=shiftDay(d,1))mx=Math.max(mx,dayPts(d,f));
+  const col=f==='all'?TV['--rad-line']:ST[f].color;
+  const lvl=v=>!v?0:Math.min(4,Math.max(1,Math.ceil(v/Math.max(1,mx)*4)));
+  const shade=[TV['--hb-empty'],hexA(col,.3),hexA(col,.55),hexA(col,.8),col];
+  let g='',prevM='',tot=0,act=0;
+  for(let w=start;w<=end;w=shiftDay(w,7)){
+    const m=w.slice(5,7);
+    g+='<span class="hm-m">'+(m!==prevM&&+w.slice(8)<=7?MONTHS_S[+m-1]:'')+'</span>';prevM=m;
+    for(let i=0;i<7;i++){const d=shiftDay(w,i);
+      if(d>t){g+='<span></span>';continue}
+      const v=dayPts(d,f),pd=f==='all'?0:penOf(d,f);tot+=v;if(v>0)act++;
+      g+='<button class="hm-c'+(pd?' pd':'')+(d===t?' td':'')+'" data-d="'+d+'" style="background:'+shade[lvl(v)]
+        +'" aria-label="'+d+'"></button>'}}
+  const lg='<div class="hm-lg">менше '+shade.map(c=>'<i style="background:'+c+'"></i>').join('')+' більше'
+    +(f==='all'?'':'<span style="margin-left:auto;display:flex;align-items:center;gap:4px"><i style="background:'+TV['--bad']
+    +';width:6px;height:6px;border-radius:50%"></i>штраф</span>')+'</div>';
+  return{html:'<div class="hm"><div class="hm-d"><span></span><span>пн</span><span></span><span>ср</span><span></span>'
+    +'<span>пт</span><span></span><span>нд</span></div><div class="hm-s"><div class="hm-g">'+g+'</div></div></div>'+lg,tot,act}}
+
+function dayDetail(iso){
+  const parts=SK.filter(k=>earned(iso,k)>0).map(k=>ST[k].emo+' '+earned(iso,k));
+  const pen=penDay(iso),sum=dayPts(iso,'all');
+  const wd=WD_FULL[dowMon(iso)];
+  if(!sum&&!pen)return '<b>'+wd+', '+dmy(iso)+'</b> — порожньо.';
+  return '<b>'+wd+', '+dmy(iso)+'</b> — +'+sum+(pen?' · штраф −'+pen:'')+(S.qDone&&S.qDone[iso]?' · квест ✓':'')
+    +(parts.length?'<br>'+parts.join('  '):'')}
+
+function openHistory(f){
+  f=f||'all';
+  let h='<h3>Рік у клітинках</h3>';
+  h+='<div class="mchips" id="hF"><button class="mchip'+(f==='all'?' on':'')+'" data-k="all">усі</button>'
+    +STATS.map(s=>'<button class="mchip'+(f===s.k?' on':'')+'" data-k="'+s.k+'" title="'+s.name+'"'
+      +(f===s.k?' style="color:'+s.color+';border-color:'+s.line+';background:'+s.soft+'"':'')+'>'+s.emo+'</button>').join('')+'</div>';
+  const hm=heatmapHtml(f);
+  h+=hm.html;
+  h+='<div class="hm-x" id="hX">'+(f==='all'?'За рік':ST[f].emo+' '+ST[f].name+' за рік')+': <b>'+hm.tot+'</b> балів, '
+    +'днів із прогресом — <b>'+hm.act+'</b>. Торкнись дня, щоб побачити деталі.</div>';
+  h+='<div class="f" style="margin-top:12px"><label>Твої звання</label><div style="font-size:13px;line-height:1.85">';
+  STATS.forEach(s=>{const st=S.stats[s.k],r=rhy(s.k);
     h+='<b style="color:'+s.color+'">'+rankOf(s.k,st.lvl).full+'</b> — рівень '+st.lvl
-      +'<br><span style="color:'+TV['--dim']+';font-size:11.5px">серія '+st.streak+' дн. (10+) · рекорд '+st.best
+      +'<br><span style="color:'+TV['--dim']+';font-size:11.5px">'
+      +(r.mode==='week'?'норма '+st.streak+' тиж. поспіль · рекорд '+(st.wbest||0):'серія '+st.streak+' дн. (10+) · рекорд '+st.best)
       +' · усього '+st.total+' балів</span><br>'});
-  h+='</div></div><div class="mrow"><button class="btn" id="hClose">Закрити</button></div>';
-  open(h);modal.querySelector('#hClose').onclick=close};
+  h+='</div></div><div class="mrow"><button class="btn" id="hRecap">Підсумок тижня</button>'
+    +'<button class="btn pri" id="hClose">Закрити</button></div>';
+  open(h);
+  const sc=modal.querySelector('.hm-s');if(sc)sc.scrollLeft=sc.scrollWidth;
+  modal.querySelectorAll('#hF .mchip').forEach(c=>c.onclick=()=>openHistory(c.dataset.k));
+  modal.querySelectorAll('.hm-c').forEach(c=>c.onclick=()=>{
+    modal.querySelectorAll('.hm-c.sel').forEach(x=>x.classList.remove('sel'));c.classList.add('sel');
+    modal.querySelector('#hX').innerHTML=dayDetail(c.dataset.d)});
+  modal.querySelector('#hRecap').onclick=()=>{
+    const cur=weekStart(today()),ws=weekHasData(cur)&&!weekHasData(shiftDay(cur,-7))?cur:shiftDay(cur,-7);
+    showRecap(ws,true)};
+  modal.querySelector('#hClose').onclick=close}
+document.getElementById('btnHist').onclick=()=>openHistory('all');
+
+let RECAP_HOLD=true;
+function maybeRecap(){
+  if(RECAP_HOLD||!S.recapPending||veil.classList.contains('on'))return;
+  const ws=S.recapPending;S.recapPending=null;S.recapSeen=ws;save();showRecap(ws,false)}
+
+function showRecap(ws,fromHistory){
+  const days=[...Array(7)].map((_,i)=>shiftDay(ws,i)).filter(d=>d<=today());
+  const sum=a=>a.reduce((x,d)=>x+dayPts(d,'all'),0);
+  const got=sum(days),pen=days.reduce((a,d)=>a+penDay(d),0),net=got-pen;
+  const prevDays=[...Array(7)].map((_,i)=>shiftDay(shiftDay(ws,-7),i));
+  const prev=sum(prevDays)-prevDays.reduce((a,d)=>a+penDay(d),0);
+  const best=days.slice().sort((a,b)=>dayPts(b,'all')-dayPts(a,'all'))[0];
+  const by={};SK.forEach(k=>by[k]=days.reduce((a,d)=>a+earned(d,k),0));
+  const rank=SK.slice().sort((a,b)=>by[b]-by[a]);
+  const we=weekEnd(ws),before=shiftDay(ws,-1),last=we<today()?we:today();
+  const lines=[];
+  const L=(e,t,sub)=>lines.push('<div class="rc-l"><span class="e">'+e+'</span><span class="t">'+t
+    +(sub?'<small>'+sub+'</small>':'')+'</span></div>');
+  if(best&&dayPts(best,'all')>0)L('⭐','Найкращий день — '+WD_FULL[dowMon(best)]+', +'+dayPts(best,'all'));
+  if(got>0)L(ST[rank[0]].emo,'Найбільше — '+ST[rank[0]].name+' ('+by[rank[0]]+')',
+    'найменше — '+ST[rank[rank.length-1]].emo+' '+ST[rank[rank.length-1]].name+' ('+by[rank[rank.length-1]]+')');
+  SK.forEach(k=>{const r=rhyAt(k,last);
+    if(r.mode==='week'){const pts=weekPts(ws,k),ok=pts>=r.norm,p=penOf(we,k);
+      L(ST[k].emo,ST[k].name+': '+pts+' з '+r.norm+(ok?' — норму виконано ✓':''),
+        !ok?(we<today()?(p?'штраф −'+p:'норму не добрано'):'тиждень ще триває'):'')}
+    else if(r.mode==='state'){const ser=gaugeSeries(k),v=ser.end[last]!=null?ser.end[last]:ser.now;
+      L(ST[k].emo,ST[k].name+': полоска на кінець тижня — '+v+'%')}});
+  const ups=SK.map(k=>({k,a:Math.floor(lvlFromXp(xpAt(k,before))),b:Math.floor(lvlFromXp(xpAt(k,last)))}))
+    .filter(x=>x.b>x.a);
+  if(ups.length)L('🆙','Нові рівні',ups.map(x=>ST[x.k].emo+' '+ST[x.k].name+' → '+x.b+' ('+rankOf(x.k,x.b).name+')').join(', '));
+  const qd=days.filter(d=>S.qDone&&S.qDone[d]).length;
+  L('🎯','Квест дня — '+qd+' з '+days.length);
+  const ach=Object.values(S.ach||{}).filter(d=>d>=ws&&d<=we).length;
+  if(ach)L('🏅','Нагород за тиждень — '+ach);
+  if(pen)L('🔻','Штрафи — −'+pen);
+  const dl=net-prev;
+  let h='<h3>Тиждень '+weekRange(ws)+'</h3>';
+  h+='<div class="rc-n" style="color:'+(net>=0?TV['--rad-line']:TV['--bad'])+'">'+(net>0?'+':'')+net+'</div>';
+  h+='<div class="rc-d">'+(net===got?'балів за тиждень':'балів після штрафів')
+    +(prev||net?' · '+(dl===0?'як тижнем раніше':(dl>0?'на '+dl+' більше':'на '+(-dl)+' менше')+', ніж тижнем раніше'):'')+'</div>';
+  const peak=Math.max(20,...days.map(d=>dayPts(d,'all')));
+  h+='<div class="wk-bars" style="margin-top:12px">';
+  days.forEach(d=>{h+='<div class="wk-col">';
+    if(!SK.some(k=>earned(d,k)>0))h+='<i style="height:3px;background:'+TV['--hb-empty']+'"></i>';
+    else SK.forEach(k=>{const v=earned(d,k);if(v)h+='<i style="height:'+Math.max(2,Math.round(v/peak*36))
+      +'px;background:'+ST[k].color+'"></i>'});
+    h+='</div>'});
+  h+='</div><div class="wk-days">'+days.map(d=>'<span>'+WD[new Date(d+'T12:00:00').getDay()]+'</span>').join('')+'</div>';
+  h+='<div style="margin-top:10px">'+lines.join('')+'</div>';
+  h+='<div class="mrow"><button class="btn pri" id="rcOk">'+(fromHistory?'Назад':'Далі')+'</button></div>';
+  open(h);
+  modal.querySelector('#rcOk').onclick=()=>{if(fromHistory)openHistory('all');else close()}}
+
+function doExport(){
+  S.lastExport=today();save();
+  const b=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='waymark-'+today()+'.json';
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+  toast('Файл збережено')}
+
+/* просимо браузер не чистити дані застосунку */
+let PERSIST=null;
+function askPersist(){
+  try{if(!(navigator.storage&&navigator.storage.persist))return;
+    navigator.storage.persisted().then(p=>p?true:navigator.storage.persist())
+      .then(ok=>{PERSIST=!!ok}).catch(()=>{})}catch(e){}}
+
+function openRhythm(){
+  const L={day:'щодня',week:'норма на тиждень',state:'полоска',free:'без штрафів'};
+  const dr={};SK.forEach(k=>dr[k]=Object.assign({},rhy(k)));
+  let h='<h3>Ритм стат</h3>';
+  h+='<p class="note" style="margin:0 0 10px">Як рахується штраф для кожної стати. Зміни діють з сьогодні, '
+    +'минулі дні й тижні не перераховуються.</p>';
+  STATS.forEach(s=>{const r=dr[s.k];
+    h+='<div class="rh f" data-k="'+s.k+'"><div class="rh-t"><span>'+s.emo+'</span><span>'+s.name+'</span></div>';
+    h+='<div class="mchips">'+['day','week','state','free'].map(m=>'<button class="mchip'+(r.mode===m?' on':'')
+      +'" data-m="'+m+'">'+L[m]+'</button>').join('')+'</div>';
+    h+='<div class="rh-x" data-x="day">штраф за кожен день без жодного бала</div>';
+    h+='<div class="rh-x" data-x="week"><input type="number" min="5" max="2000" step="5" value="'+r.norm
+      +'"> балів за тиждень; у неділю штраф за кожні 10 недобраних</div>';
+    h+='<div class="rh-x" data-x="state">просідає на <input type="number" min="1" max="50" value="'+r.drain
+      +'"> зі 100 щодня; штраф, лише коли на нулі</div>';
+    h+='<div class="rh-x" data-x="free">бали, рівні й серії як завжди, тільки без штрафів</div></div>'});
+  h+='<div class="mrow"><button class="btn" id="rBack">Назад</button><button class="btn pri" id="rSave">Зберегти</button></div>';
+  open(h);
+  const sync=row=>{const m=dr[row.dataset.k].mode;
+    row.querySelectorAll('.rh-x').forEach(x=>x.style.display=x.dataset.x===m?'':'none')};
+  modal.querySelectorAll('.rh').forEach(row=>{sync(row);
+    row.querySelectorAll('.mchip').forEach(c=>c.onclick=()=>{dr[row.dataset.k].mode=c.dataset.m;
+      row.querySelectorAll('.mchip').forEach(x=>x.classList.toggle('on',x===c));sync(row)})});
+  modal.querySelector('#rBack').onclick=openSettings;
+  modal.querySelector('#rSave').onclick=()=>{
+    const changed=[];
+    modal.querySelectorAll('.rh').forEach(row=>{const k=row.dataset.k;
+      const nr={mode:dr[k].mode,
+        norm:+row.querySelector('[data-x=week] input').value||80,
+        drain:+row.querySelector('[data-x=state] input').value||10};
+      if(setRhythm(k,nr))changed.push(ST[k].name)});
+    if(changed.length){buildTracks();reconcile()}
+    save();render();openSettings();
+    toast(changed.length?'Новий ритм з сьогодні: '+changed.join(', '):'Без змін')}}
 
 function openSettings(){
   const pace=S.pace||1;
@@ -1718,14 +2270,23 @@ function openSettings(){
     h+='<button class="mchip'+(String(pace)===v?' on':'')+'" data-v="'+v+'">'+l+'</button>');
   h+='</div><p class="note">Впливає на те, скільки балів треба на рівень. Зараз до найвищого звання — '
     +Math.round(sumToTen()*pace)+' балів.</p></div>';
-  h+='<div class="f"><label>Штраф за день без прогресу</label><input type="number" id="sPen" min="0" max="50" value="'+S.penalty+'">';
-  h+='<p class="note">Списується з кожної стати, яка за день не отримала жодного бала. За кожен наступний день поспіль штраф росте: ×2, ×3, далі ×4. Постав 0, щоб вимкнути.</p></div>';
+  h+='<div class="f"><label>Штраф і ритм стат</label><div class="qrow"><input type="number" id="sPen" min="0" max="50" value="'
+    +S.penalty+'" style="width:88px"><button class="btn" id="sRhy" style="flex:1">Ритм стат</button></div>';
+  h+='<p class="note">Базовий розмір штрафу. Щоденні стати: за день без балів, далі ×2, ×3, ×4, якщо пропуски поспіль. '
+    +'Тижнева норма: у неділю — за кожні 10 недобраних балів. Полоска: коли стан падає до нуля. '
+    +'Новий розмір діє з сьогодні. Постав 0, щоб вимкнути все.</p></div>';
   h+='<div class="f"><label>Передбачення — по одному на рядок</label>';
   h+='<textarea id="sFort" placeholder="Одне передбачення на рядок">'+esc((S.fortunes||[]).join('\n'))+'</textarea>';
   h+='<p class="note">Зараз їх '+(S.fortunes||[]).length+'. Показується одне на день, випадково, без повторів найближчим часом.</p></div>';
   h+='<div class="f"><label>Перенести на інший пристрій</label><div class="mrow" style="margin-top:0">';
   h+='<button class="btn" id="sExp">Експорт</button><button class="btn" id="sImp">Імпорт</button></div>';
-  h+='<p class="note">Дані живуть тільки в цьому браузері. Щоб відкрити прогрес на телефоні — експортуй файл і імпортуй його там.</p></div>';
+  const pc=prevCopy();
+  if(pc)h+='<button class="btn" id="sPrev" style="width:100%;margin-top:7px">Повернути дані до оновлення ('
+    +pc.at.slice(8,10)+'.'+pc.at.slice(5,7)+')</button>';
+  h+='<p class="note">Дані живуть тільки в цьому браузері. Експорт — це і перенесення на інший пристрій, і резервна копія. '
+    +(S.lastExport?'Остання копія: '+S.lastExport.slice(8)+'.'+S.lastExport.slice(5,7)+'. ':'Копії ще не було. ')
+    +(PERSIST===true?'Браузер погодився не чистити ці дані.':PERSIST===false?'Браузер не гарантує, що не почистить дані, — тримай свіжу копію.':'')
+    +'</p></div>';
   h+='<div class="f"><label>Квест дня</label><div class="mchips" id="sQSrc">';
   [['mine','мої квести'],['mix','порівну'],['tasks','мої завдання']].forEach(o=>
     h+='<button class="mchip'+((S.questSrc||'mix')===o[0]?' on':'')+'" data-v="'+o[0]+'">'+o[1]+'</button>');
@@ -1754,51 +2315,41 @@ function openSettings(){
   modal.querySelectorAll('#sTheme .thc').forEach(c=>c.onclick=()=>{
     S.theme=c.dataset.k;applyTheme();save();
     modal.querySelectorAll('#sTheme .thc').forEach(x=>x.classList.toggle('on',x===c));
-    renderRadar();renderGrid();renderFilters();renderSort();renderTasks();renderAch();renderWeek();renderTop()});
-  let nqsrc=S.questSrc||'mix',nqbias=S.questBias?1:0;
+    render()});
+  let nqsrc=S.questSrc||'mix',nqbias=S.questBias?1:0,nauto=S.autoAch!==0?1:0,np=pace;
   modal.querySelectorAll('#sQSrc .mchip').forEach(c=>c.onclick=()=>{nqsrc=c.dataset.v;
     modal.querySelectorAll('#sQSrc .mchip').forEach(x=>x.classList.toggle('on',x===c))});
   modal.querySelectorAll('#sQBias .mchip').forEach(c=>c.onclick=()=>{nqbias=+c.dataset.v;
     modal.querySelectorAll('#sQBias .mchip').forEach(x=>x.classList.toggle('on',x===c))});
-  modal.querySelector('#sQEdit').onclick=()=>{
-    S.questSrc=nqsrc;S.questBias=nqbias;
-    S.questMul=Math.max(1,+modal.querySelector('#sQMul').value||1.5);save();openQuests()};
-  let nauto=S.autoAch!==0?1:0;
+  const commit=()=>{
+    setPenalty(modal.querySelector('#sPen').value);
+    S.pace=np;S.autoAch=nauto;S.questSrc=nqsrc;S.questBias=nqbias;
+    S.questMul=Math.max(1,+modal.querySelector('#sQMul').value||1.5);
+    const lines=modal.querySelector('#sFort').value.split('\n').map(x=>x.trim()).filter(Boolean);
+    if(lines.length)S.fortunes=lines};
+  modal.querySelector('#sQEdit').onclick=()=>{commit();save();openQuests()};
+  modal.querySelector('#sRhy').onclick=()=>{commit();save();openRhythm()};
   modal.querySelectorAll('#sAuto .mchip').forEach(c=>c.onclick=()=>{nauto=+c.dataset.v;
     modal.querySelectorAll('#sAuto .mchip').forEach(x=>x.classList.toggle('on',x===c))});
-  let np=pace;
   modal.querySelectorAll('#sPace .mchip').forEach(c=>c.onclick=()=>{np=+c.dataset.v;
     modal.querySelectorAll('#sPace .mchip').forEach(x=>x.classList.remove('on'));c.classList.add('on')});
   modal.querySelector('#sClose').onclick=close;
   modal.querySelector('#sSave').onclick=()=>{
-    S.penalty=Math.max(0,+modal.querySelector('#sPen').value||0);
-    S.pace=np;S.autoAch=nauto;S.questSrc=nqsrc;S.questBias=nqbias;
-    S.questMul=Math.max(1,+modal.querySelector('#sQMul').value||1.5);
-    const lines=modal.querySelector('#sFort').value.split('\n').map(x=>x.trim()).filter(Boolean);
-    if(lines.length)S.fortunes=lines;
-    save();render();close();toast('Збережено')};
-  modal.querySelector('#sExp').onclick=()=>{const b=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
-    const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='waymark-'+today()+'.json';
-    a.click();URL.revokeObjectURL(a.href);toast('Файл збережено')};
+    commit();save();render();close();toast('Збережено')};
+  modal.querySelector('#sExp').onclick=()=>{doExport();openSettings()};
+  const sp=modal.querySelector('#sPrev');
+  if(sp)sp.onclick=()=>{const pc=prevCopy();if(!pc)return;
+    if(!confirm('Замінити поточні дані копією, відкладеною браузером '+pc.at.slice(0,10)+'?\n\n'
+      +'Поточний стан спершу збережеться файлом.'))return;
+    try{const d=JSON.parse(pc.raw);doExport();
+      S=normalize(Object.assign(structuredClone(blank),d),d);
+      applyTheme();buildTracks();save();rollover();render();close();toast('Дані повернуто')}
+    catch(e){toast('Копія пошкоджена — відновити не вийшло')}};
   modal.querySelector('#sImp').onclick=()=>{const i=document.createElement('input');i.type='file';i.accept='.json,application/json';
     i.onchange=()=>{const f=i.files[0];if(!f)return;const r=new FileReader();
       r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.stats||!d.tasks)throw 0;
-        S=Object.assign(structuredClone(blank),d);
-        SK.forEach(k=>{if(!S.stats[k])S.stats[k]={xp:0,lvl:1,total:0,streak:0,best:0,miss:0};
-          if(S.stats[k].miss==null)S.stats[k].miss=0});
-        if(!S.fortunes||!S.fortunes.length)S.fortunes=FORTUNES.slice();
-        if(!Array.isArray(S.bonuses))S.bonuses=[];
-        if(!Array.isArray(S.quests))S.quests=seedQuests();
-        if(S.questMul==null)S.questMul=1.5;
-        if(!S.questSrc)S.questSrc='mix';
-        if(S.questBias==null)S.questBias=0;
-        if(!Array.isArray(S.qEvt))S.qEvt=[];
-        if(!Array.isArray(S.questSeen))S.questSeen=[];
-        (S.tasks||[]).forEach(t=>{if(t.quest==null)t.quest=true});
-        if(S.autoAch==null)S.autoAch=1;
-        if(!THEMES[S.theme])S.theme='sky';
-        if(!['def','diff','abc'].includes(S.sort))S.sort='def';
-        applyTheme();save();rollover();render();close();toast('Дані завантажено')}catch(e){toast('Файл не підходить')}};
+        S=normalize(Object.assign(structuredClone(blank),d),d);
+        applyTheme();buildTracks();save();rollover();render();close();toast('Дані завантажено')}catch(e){toast('Файл не підходить')}};
       r.readAsText(f)};i.click()};
   modal.querySelector('#sResetProg').onclick=()=>{
     const nt=(S.tasks||[]).length,nb=(S.bonuses||[]).length;
@@ -1809,7 +2360,7 @@ function openSettings(){
   modal.querySelector('#sReset').onclick=()=>{
     if(!confirm('Стерти ВСЕ — разом із твоїми завданнями й досягненнями?\n\n'
       +'Застосунок повернеться до стартового набору завдань. Це не можна скасувати.'))return;
-    localStorage.removeItem(KEY);S=load();applyTheme();save();render();close();toast('Готово')}}
+    localStorage.removeItem(KEY);S=load();applyTheme();buildTracks();rollover();save();render();close();toast('Готово')}}
 document.getElementById('btnSet').onclick=openSettings;
 
 function sumToTen(){let s=0;for(let l=1;l<10;l++)s+=60+40*(l-1)+6*(l-1)*(l-1);return s}
@@ -1823,13 +2374,23 @@ function goTab(p){const n=document.querySelector('.nv[data-p='+p+']');if(n)n.cli
 
 applyTheme();
 rollover();
+buildTracks();
+askPersist();
 pickQuest();
 backfillAch();
 const fresh=pickFortune();
 render();
 if(fresh)showFortuneModal();
-document.addEventListener('visibilitychange',()=>{if(!document.hidden){
-  rollover();pickQuest();const f=pickFortune();render();if(f)showFortuneModal()}});
+RECAP_HOLD=false;if(!fresh)maybeRecap();
+function dayTick(force){
+  if(!force&&S.lastDay===today())return false;
+  RECAP_HOLD=true;rollover();pickQuest();const f=pickFortune();render();if(f)showFortuneModal();
+  RECAP_HOLD=false;if(!f)maybeRecap();return true}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)dayTick(true)});
+setInterval(()=>{if(document.hidden)return;
+  if(dayTick(false))return;
+  if(S.questRef&&S.questRef.win&&S.questStart)renderQuest()},60000);
+if(LOAD_ERR)setTimeout(()=>toast('Збережені дані не прочитались — їх відкладено, повернути можна в ⚙'),1200);
 
 if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
