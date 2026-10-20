@@ -262,6 +262,9 @@ button{background:none;border:none;cursor:pointer}
 .lv-stat{font-family:var(--disp);font-size:13.5px;font-weight:500;margin-top:10px}
 .lv-fl{font-size:14px;line-height:1.62;margin-top:11px;color:var(--ink-2);font-weight:500;
   padding:0 4px;text-wrap:pretty}
+@keyframes nudge{0%,100%{transform:none}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.mrow.nudge{animation:nudge .28s ease-in-out}
+@media (prefers-reduced-motion: reduce){.mrow.nudge{animation:none}}
 .lv-long{text-align:left;font-size:14.5px;line-height:1.65;margin-top:12px;padding:0 2px}
 .lv-long b{color:var(--ink);font-weight:700}
 .lv-now{font-family:var(--disp);font-size:23px;font-weight:600;line-height:1.3;margin-top:4px}
@@ -435,6 +438,10 @@ const DF=Object.fromEntries(DIFF.map(d=>[d.k,d]));
 const KEY='staty.v1';
 const PREV_KEY=KEY+'.prev';
 let LOAD_ERR=false;
+/* що саме це вікно востаннє прочитало чи записало — щоб помітити запис з іншого вікна */
+let LAST_RAW=null;
+/* id, видалені саме в цьому вікні: їх не повертаємо під час злиття */
+const GONE=new Set();
 /* Ритм за замовчуванням: day — штраф за день без балів; week — норма балів на тиждень;
    state — полоска стану, яка щодня просідає сама; free — без штрафів. */
 const DEF_RHY={str:{mode:'week',norm:80},soc:{mode:'free'},joy:{mode:'free'},ord:{mode:'state',drain:10}};
@@ -775,7 +782,7 @@ const FORTUNES=[
 function rankOf(k,lvl){const a=RANKS[k],s=a[Math.min(a.length,Math.max(1,lvl))-1];
   const i=s.indexOf(' ');return{emo:s.slice(0,i),name:s.slice(i+1),full:s}}
 
-const blank={v:6,lastDay:null,penalty:5,pace:1,theme:'sky',sort:'def',sortDir:1,
+const blank={v:7,lastDay:null,penalty:5,pace:1,theme:'sky',sort:'def',sortDir:1,
   pen:{},bon:{},rhythm:{},rhyHist:{},penHist:[],since:{},gauge:{},startDay:null,penThrough:null,lastExport:null,
   qDone:{},ghost:'w',recapSeen:null,recapPending:null,
   tasks:[],bonuses:[],quests:[],log:{},stats:{},ach:{},achInit:0,autoAch:1,
@@ -853,11 +860,15 @@ function migrate(m,d){
     SK.forEach(k=>{const r=m.rhythm[k];
       if(r&&r.mode==='week'&&(+r.norm||0)<=7)m.rhythm[k]=k==='soc'?{mode:'free'}:{mode:'week',norm:80}});
     m.v=5}
+  if(d&&(!d.v||d.v<7)){
+    /* типу «разове» (видалявся після виконання) більше немає — усі завдання стають щоденними */
+    (m.tasks||[]).forEach(t=>{if(t)t.once=false});
+    if(d.v>=6)m.v=7}
   if(d&&(!d.v||d.v<6)){
     /* v6: нові 100 передбачень замінюють усі попередні */
     m.fortunes=FORTUNES.slice();m.fortSeen=[];
     if(m.fortText&&!FORTUNES.includes(m.fortText))m.fortText=FORTUNES[Math.floor(Math.random()*FORTUNES.length)];
-    m.v=6}
+    m.v=7}
   if(!m.rhyHist||typeof m.rhyHist!=='object')m.rhyHist={};
   SK.forEach(k=>{if(!Array.isArray(m.rhyHist[k])||!m.rhyHist[k].length)
     m.rhyHist[k]=[Object.assign({d:'2000-01-01'},normRule(m.rhythm[k]))]});
@@ -903,10 +914,32 @@ function load(){
   if(r){try{const d=JSON.parse(r),m=structuredClone(blank);
       if(!d||typeof d!=='object')throw new Error('bad');
       if((d.v||0)<blank.v)keepPrev(r);
+      LAST_RAW=r;
       Object.assign(m,d);return normalize(m,d)}
     catch(e){keepPrev(r);LOAD_ERR=true}}
   const d=structuredClone(blank);d.tasks=seed();d.quests=seedQuests();return migrate(d,null)}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Не вдалося зберегти')}}
+/* Якщо інше вікно (встановлений застосунок і вкладка в браузері) встигло щось записати,
+   не затираємо його завдання, квести й досягнення, а доливаємо їх до своїх. */
+function mergeLists(o){
+  ['tasks','quests','bonuses'].forEach(f=>{if(!Array.isArray(o[f]))return;
+    if(!Array.isArray(S[f]))S[f]=[];
+    const have=new Set(S[f].map(x=>x&&x.id));
+    o[f].forEach(x=>{if(x&&x.id&&!have.has(x.id)&&!GONE.has(x.id))S[f].push(x)})})}
+function save(){
+  try{
+    let cur=null;try{cur=localStorage.getItem(KEY)}catch(e){}
+    if(cur&&LAST_RAW&&cur!==LAST_RAW){try{mergeLists(JSON.parse(cur))}catch(e){}}
+    const j=JSON.stringify(S);localStorage.setItem(KEY,j);LAST_RAW=j}
+  catch(e){toast('Не вдалося зберегти')}}
+
+/* підтягнути свіжі дані, якщо їх змінило інше вікно */
+function syncFromStorage(){
+  let r=null;try{r=localStorage.getItem(KEY)}catch(e){return false}
+  if(!r||r===LAST_RAW)return false;
+  try{JSON.parse(r)}catch(e){return false}
+  if(veil.classList.contains('on')){veil.classList.remove('on');modal.innerHTML=''}
+  S=load();applyTheme();buildTracks();RAD_PREV=null;
+  return true}
 function uid(){return Math.random().toString(36).slice(2,10)}
 function today(){const d=new Date();d.setHours(12,0,0,0);return d.toISOString().slice(0,10)}
 function need(l){return Math.round((60+40*(l-1)+6*(l-1)*(l-1))*(S.pace||1))}
@@ -1377,7 +1410,6 @@ function rollover(){
     const ws=shiftDay(weekStart(t),-7);
     if(S.recapSeen!==ws&&weekHasData(ws))S.recapPending=ws}
   if(newDay){
-    S.tasks=S.tasks.filter(x=>!(x.once&&x.doneOn));
     S.tasks.forEach(x=>{x.doneOn=null;x.count=0});
     S.qEvt=[];S.questStart=0}
   const r=reconcile();
@@ -1385,7 +1417,9 @@ function rollover(){
   const cut=shiftDay(t,-400);
   ['log','pen','bon','qDone'].forEach(f=>Object.keys(S[f]||{}).forEach(k=>{if(k<cut)delete S[f][k]}));
   S.lastDay=t;save();
-  if(newDay&&r.lost)setTimeout(()=>toast('Штраф: −'+r.lost+' балів за пропущене'),800)}
+  const msg=[];
+  if(newDay&&r.lost)msg.push('штраф −'+r.lost+' балів за пропущене');
+  if(msg.length)setTimeout(()=>toast(msg.join(' · ')),800)}
 
 /* ---------- fortune ---------- */
 function pickFortune(){
@@ -1562,7 +1596,8 @@ function openBonus(b){
     modal.querySelectorAll('#bType .mchip').forEach(x=>x.classList.toggle('on',x===c))});
   modal.querySelector('#bCancel').onclick=close;
   const del=modal.querySelector('#bDel');
-  if(del)del.onclick=()=>{
+  if(del)del.onclick=()=>{if(!confirm('Видалити досягнення «'+b.name+'»?'))return;
+    GONE.add(b.id);
     const n=bonusCount(b);
     if(n)awardBonus(bonusKeys(b),-bonusXp(b)*n);
     S.bonuses=(S.bonuses||[]).filter(x=>x.id!==b.id);save();render();close();toast('Видалено')};
@@ -1701,7 +1736,8 @@ function openQuest(q){
   sync();
   modal.querySelector('#qCancel').onclick=openQuests;
   const del=modal.querySelector('#qDel');
-  if(del)del.onclick=()=>{
+  if(del)del.onclick=()=>{if(!confirm('Видалити квест «'+(q.name||'без назви')+'»?'))return;
+    GONE.add(q.id);
     S.quests=(S.quests||[]).filter(x=>x.id!==q.id);
     if(S.questRef&&S.questRef.qid===q.id){S.questRef=null;S.questProg=0;S.questPaid=0}
     save();render();openQuests();toast('Видалено')};
@@ -1993,7 +2029,6 @@ function taskRow(t){
   t.stats.forEach(k=>{const s=ST[k],p=document.createElement('span');p.className='pill';
     p.style.color=s.color;p.style.background=s.soft;p.textContent=s.emo+' '+s.name;m.appendChild(p)});
   const d=document.createElement('span');d.className='dlab';d.textContent=DF[t.diff].label;m.appendChild(d);
-  if(t.once){const o=document.createElement('span');o.className='dlab';o.textContent='· разове';m.appendChild(o)}
   b.appendChild(m);b.onclick=()=>openTask(t);el.appendChild(b);
   const n=t.count||0,earned=xp*n;
   const v=document.createElement('div');v.className='xpv'+(n?' hot':'');
@@ -2006,7 +2041,12 @@ function taskRow(t){
 
 /* ---------- modal ---------- */
 const veil=document.getElementById('veil'),modal=document.getElementById('modal');
-veil.onclick=e=>{if(e.target===veil)close()};
+veil.onclick=e=>{if(e.target!==veil)return;
+  /* у вікні є поля — закривається тільки кнопкою, щоб не губити набране */
+  if(modal.querySelector('input,textarea,select')){
+    const b=modal.querySelector('.mrow');if(b){b.classList.remove('nudge');void b.offsetWidth;b.classList.add('nudge')}
+    return}
+  close()};
 document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
 function close(){veil.classList.remove('on');modal.innerHTML='';setTimeout(flushLevels,180)}
 function open(h){modal.innerHTML=h;veil.classList.add('on')}
@@ -2058,6 +2098,11 @@ function flushAch(){
   h+='</div><div class="mrow"><button class="btn pri" id="aOk">Клас</button></div>';
   open(h);modal.querySelector('#aOk').onclick=()=>{close();setTimeout(flushLevels,180)}}
 
+const FREQ=[['day','раз на день'],['multi','кілька разів на день']];
+const FREQ_NOTE={
+  day:'Одна галочка на день. Опівночі завдання знову чекає на тебе.',
+  multi:'Кожне натискання дає бали, наприклад за кожну склянку води. Лічильник обнуляється опівночі.'};
+
 function openTask(t){
   const isNew=!t;
   t=t||{id:uid(),name:'',diff:'low',stats:[filter==='all'?'str':filter],multi:false,once:false,doneOn:null,count:0};
@@ -2070,10 +2115,12 @@ function openTask(t){
   h+='<div class="f"><label>Складність</label><div class="mchips" id="tDiff">';
   DIFF.forEach(d=>h+='<button class="mchip'+(t.diff===d.k?' on':'')+'" data-k="'+d.k+'">'+d.label+' · '+d.xp+'</button>');
   h+='</div></div>';
-  h+='<div class="f"><label>Тип</label><div class="mchips" id="tType">';
-  h+='<button class="mchip'+(t.multi?' on':'')+'" data-k="multi">рахувати повтори</button>';
-  h+='<button class="mchip'+(t.once?' on':'')+'" data-k="once">разове</button>';
-  h+='<button class="mchip'+(t.quest!==false?' on':'')+'" data-k="quest">може бути квестом</button></div></div>';
+  const fq=t.multi?'multi':'day';
+  h+='<div class="f"><label>Як часто</label><div class="mchips" id="tFreq">'
+    +FREQ.map(o=>'<button class="mchip'+(fq===o[0]?' on':'')+'" data-f="'+o[0]+'">'+o[1]+'</button>').join('')
+    +'</div><p class="note" id="tFreqNote">'+FREQ_NOTE[fq]+'</p></div>';
+  h+='<div class="f"><label>Квест дня</label><div class="mchips" id="tQuest">'
+    +'<button class="mchip'+(t.quest!==false?' on':'')+'" data-k="quest">може бути квестом</button></div></div>';
   if(!isNew){
     h+='<div class="f"><label>Забула відмітити?</label><div class="retro" id="tRetro">';
     for(let i=1;i<=7;i++){const iso=shiftDay(today(),-i);
@@ -2082,17 +2129,18 @@ function openTask(t){
   h+='<div class="mrow">'+(isNew?'':'<button class="btn del" id="tDel">✕</button>')
     +'<button class="btn" id="tCancel">Назад</button><button class="btn pri" id="tSave">Зберегти</button></div>';
   open(h);
-  const dr={stats:[...t.stats],diff:t.diff,multi:t.multi,once:t.once,quest:t.quest!==false};
+  const dr={stats:[...t.stats],diff:t.diff,multi:t.multi,once:false,quest:t.quest!==false};
   modal.querySelectorAll('#tStats .mchip').forEach(c=>c.onclick=()=>{
     const k=c.dataset.k,s=ST[k],i=dr.stats.indexOf(k);
     if(i>-1){if(dr.stats.length===1)return;dr.stats.splice(i,1);c.classList.remove('on');c.style.cssText=''}
     else{dr.stats.push(k);c.classList.add('on');c.style.color=s.color;c.style.borderColor=s.line;c.style.background=s.soft}});
   modal.querySelectorAll('#tDiff .mchip').forEach(c=>c.onclick=()=>{dr.diff=c.dataset.k;
     modal.querySelectorAll('#tDiff .mchip').forEach(x=>x.classList.remove('on'));c.classList.add('on')});
-  modal.querySelectorAll('#tType .mchip').forEach(c=>c.onclick=()=>{
-    const k=c.dataset.k;dr[k]=!dr[k];c.classList.toggle('on',dr[k]);
-    if(dr.multi&&dr.once){const o=k==='multi'?'once':'multi';dr[o]=false;
-      modal.querySelector('#tType .mchip[data-k='+o+']').classList.remove('on')}});
+  modal.querySelectorAll('#tFreq .mchip').forEach(c=>c.onclick=()=>{const f=c.dataset.f;
+    dr.multi=f==='multi';dr.once=false;
+    modal.querySelectorAll('#tFreq .mchip').forEach(x=>x.classList.toggle('on',x===c));
+    modal.querySelector('#tFreqNote').textContent=FREQ_NOTE[f]});
+  modal.querySelectorAll('#tQuest .mchip').forEach(c=>c.onclick=()=>{dr.quest=!dr.quest;c.classList.toggle('on',dr.quest)});
   modal.querySelectorAll('#tRetro .rd').forEach(c=>{let n=0;
     c.onclick=()=>{const iso=c.dataset.d,xp=DF[dr.diff].xp;
       const keys=SK.filter(k=>dr.stats.includes(k));
@@ -2102,12 +2150,17 @@ function openTask(t){
       toast('Зараховано за '+iso.slice(8)+'.'+iso.slice(5,7))}});
   modal.querySelector('#tCancel').onclick=close;
   const del=modal.querySelector('#tDel');
-  if(del)del.onclick=()=>{S.tasks=S.tasks.filter(x=>x.id!==t.id);save();render();close();toast('Видалено')};
+  if(del)del.onclick=()=>{if(!confirm('Видалити завдання «'+t.name+'»?'))return;
+    GONE.add(t.id);S.tasks=S.tasks.filter(x=>x.id!==t.id);save();render();close();toast('Видалено')};
   modal.querySelector('#tSave').onclick=()=>{
     const n=modal.querySelector('#tName').value.trim();if(!n){toast('Впиши назву');return}
     t.name=n;t.stats=SK.filter(k=>dr.stats.includes(k));t.diff=dr.diff;t.multi=dr.multi;t.once=dr.once;
     t.quest=dr.quest;
-    if(isNew)S.tasks.unshift(t);save();render();close()}}
+    if(isNew)S.tasks.unshift(t);
+    const hidden=filter!=='all'&&!t.stats.includes(filter);
+    if(hidden)filter='all';
+    save();render();close();
+    if(hidden)toast((isNew?'Додано':'Збережено')+'. Показую всі стати, щоб його було видно')}}
 
 document.getElementById('btnNewAch').onclick=()=>openBonus(null);
 document.getElementById('btnNewTask').onclick=()=>openTask(null);
@@ -2415,9 +2468,15 @@ if(fresh)showFortuneModal();
 RECAP_HOLD=false;if(!fresh)maybeRecap();
 function dayTick(force){
   if(!force&&S.lastDay===today())return false;
+  if(!force)syncFromStorage();
   RECAP_HOLD=true;rollover();pickQuest();const f=pickFortune();render();if(f)showFortuneModal();
   RECAP_HOLD=false;if(!f)maybeRecap();return true}
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)dayTick(true)});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)return;
+  const fresh=syncFromStorage();
+  if(!dayTick(true)&&fresh)render()});
+window.addEventListener('storage',e=>{
+  if(e.key!==KEY&&e.key!==null)return;
+  if(syncFromStorage()){render();toast('Оновлено з іншого вікна')}});
 setInterval(()=>{if(document.hidden)return;
   if(dayTick(false))return;
   if(S.questRef&&S.questRef.win&&S.questStart)renderQuest()},60000);
