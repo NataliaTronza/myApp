@@ -185,6 +185,9 @@ button{background:none;border:none;cursor:pointer}
 .rh{border-top:2px dashed var(--edge);padding:10px 0 2px;margin-bottom:6px}
 .rh-t{display:flex;gap:7px;align-items:center;font-size:13.5px;font-weight:700;margin-bottom:7px}
 .rh-x{font-size:12px;color:var(--ink-2);font-weight:700;margin-top:8px;display:flex;align-items:center;gap:7px}
+.rh-st{flex-direction:column;align-items:flex-start!important;gap:6px}
+.rh-st div{display:flex;align-items:center;gap:7px}
+.rh-st .rd-hint{color:var(--dim);font-weight:600;font-size:11.5px;line-height:1.5;display:block}
 .rh-x input[type=number]{width:64px!important;text-align:center;padding:5px 6px!important}
 .filters{display:flex;gap:5px;flex-wrap:wrap;padding-bottom:9px}
 .fchip{font-family:var(--disp);font-size:13px;font-weight:500;padding:4px 11px;border-radius:9px;
@@ -981,7 +984,8 @@ function maxRun(k,thr){
    Ритм і розмір штрафу мають історію: зміна діє з дня, коли її зробили. */
 function normRule(r){r=r||{};const mode=['day','week','state','free'].includes(r.mode)?r.mode:'day';
   return{mode,norm:Math.min(2000,Math.max(5,Math.round(+r.norm||80))),
-    drain:Math.min(50,Math.max(1,Math.round(+r.drain||10)))}}
+    drain:Math.min(50,Math.max(1,Math.round(+r.drain||10))),
+    gain:Math.min(5,Math.max(0.1,Math.round((+r.gain||1)*100)/100))}}
 function rhyHist(k){const h=(S.rhyHist||{})[k];
   return h&&h.length?h:[Object.assign({d:'2000-01-01'},normRule((S.rhythm||{})[k]||DEF_RHY[k]))]}
 function rhyAt(k,iso){const h=rhyHist(k);let r=h[0];for(const e of h){if(e.d<=iso)r=e;else break}return normRule(r)}
@@ -1016,8 +1020,8 @@ function awardBonus(keys,amount){
 function gaugeSeries(k){
   const t=today(),cp=(S.gauge||{})[k]||{d:(S.since||{})[k]||t,v:50};
   let v=Math.min(100,Math.max(0,+cp.v||0)),d=cp.d,g=0;const end={};
-  while(d<=t&&g++<900){v=Math.min(100,v+earned(d,k));
-    if(d<t){v=Math.max(0,v-rhyAt(k,d).drain);end[d]=v}
+  while(d<=t&&g++<900){const r=rhyAt(k,d);v=Math.min(100,v+earned(d,k)*r.gain);
+    if(d<t){v=Math.max(0,v-r.drain);end[d]=v}
     d=shiftDay(d,1)}
   return{end,now:Math.round(v)}}
 function gaugeNow(k){return gaugeSeries(k).now}
@@ -1075,7 +1079,7 @@ function advanceGauges(){
   const target=shiftDay(today(),-14);
   SK.forEach(k=>{if(rhy(k).mode!=='state')return;const cp=S.gauge[k];if(!cp||cp.d>=target)return;
     let v=cp.v,d=cp.d,g=0;
-    while(d<target&&g++<900){v=Math.max(0,Math.min(100,v+earned(d,k))-rhyAt(k,d).drain);d=shiftDay(d,1)}
+    while(d<target&&g++<900){const r=rhyAt(k,d);v=Math.max(0,Math.min(100,v+earned(d,k)*r.gain)-r.drain);d=shiftDay(d,1)}
     S.gauge[k]={d:target,v}})}
 
 /* Нове правило діє з сьогодні. Зміна режиму — новий відлік для стати;
@@ -1083,7 +1087,7 @@ function advanceGauges(){
 function setRhythm(k,nr){
   const old=rhy(k),fresh=normRule(Object.assign({},old,nr));
   if(old.mode===fresh.mode&&(fresh.mode!=='week'||old.norm===fresh.norm)
-    &&(fresh.mode!=='state'||old.drain===fresh.drain))return false;
+    &&(fresh.mode!=='state'||(old.drain===fresh.drain&&old.gain===fresh.gain)))return false;
   const t=today();
   if(old.mode!==fresh.mode){
     let gv=50;
@@ -2319,14 +2323,20 @@ function openRhythm(){
     h+='<div class="rh-x" data-x="day">штраф за кожен день без жодного бала</div>';
     h+='<div class="rh-x" data-x="week"><input type="number" min="5" max="2000" step="5" value="'+r.norm
       +'"> балів за тиждень; у неділю штраф за кожні 10 недобраних</div>';
-    h+='<div class="rh-x" data-x="state">просідає на <input type="number" min="1" max="50" value="'+r.drain
-      +'"> зі 100 щодня; штраф, лише коли на нулі</div>';
+    h+='<div class="rh-x rh-st" data-x="state"><div>просідає на <input type="number" class="rd-dr" min="1" max="50" value="'+r.drain
+      +'"> % щодня</div><div>1 бал дає <input type="number" class="rd-gn" min="0.1" max="5" step="0.1" value="'+r.gain
+      +'"> % полоски</div><div class="rd-hint"></div></div>';
     h+='<div class="rh-x" data-x="free">бали, рівні й серії як завжди, тільки без штрафів</div></div>'});
   h+='<div class="mrow"><button class="btn" id="rBack">Назад</button><button class="btn pri" id="rSave">Зберегти</button></div>';
   open(h);
+  const hint=row=>{const h=row.querySelector('.rd-hint');if(!h)return;
+    const dr_=Math.max(1,+row.querySelector('.rd-dr').value||10),gn=Math.max(0.1,+row.querySelector('.rd-gn').value||1);
+    const pts=Math.ceil(dr_/gn);
+    h.textContent='Щоб полоска трималась на місці, треба ≈'+pts+' балів на день. Штраф — лише коли вона на нулі.'};
   const sync=row=>{const m=dr[row.dataset.k].mode;
-    row.querySelectorAll('.rh-x').forEach(x=>x.style.display=x.dataset.x===m?'':'none')};
+    row.querySelectorAll('.rh-x').forEach(x=>x.style.display=x.dataset.x===m?'':'none');hint(row)};
   modal.querySelectorAll('.rh').forEach(row=>{sync(row);
+    row.querySelectorAll('.rd-dr,.rd-gn').forEach(i=>i.oninput=()=>hint(row));
     row.querySelectorAll('.mchip').forEach(c=>c.onclick=()=>{dr[row.dataset.k].mode=c.dataset.m;
       row.querySelectorAll('.mchip').forEach(x=>x.classList.toggle('on',x===c));sync(row)})});
   modal.querySelector('#rBack').onclick=openSettings;
@@ -2335,7 +2345,8 @@ function openRhythm(){
     modal.querySelectorAll('.rh').forEach(row=>{const k=row.dataset.k;
       const nr={mode:dr[k].mode,
         norm:+row.querySelector('[data-x=week] input').value||80,
-        drain:+row.querySelector('[data-x=state] input').value||10};
+        drain:+row.querySelector('.rd-dr').value||10,
+        gain:+row.querySelector('.rd-gn').value||1};
       if(setRhythm(k,nr))changed.push(ST[k].name)});
     if(changed.length){buildTracks();reconcile()}
     save();render();openSettings();
