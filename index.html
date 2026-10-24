@@ -84,10 +84,14 @@ button{background:none;border:none;cursor:pointer}
 
 /* конфеті з квадратиків — таких самих, як точки на мапі */
 .cf{position:fixed;inset:0;pointer-events:none;z-index:95;overflow:hidden}
-.cf i{position:absolute;top:-16px;aspect-ratio:1;border-radius:2px;border:1.5px solid rgba(255,255,255,.9);
-  animation-name:cf;animation-timing-function:cubic-bezier(.25,.6,.45,1);animation-fill-mode:forwards}
-@keyframes cf{0%{transform:translate(0,0) rotate(0)}100%{transform:translate(var(--dx),108vh) rotate(var(--rot))}}
-.lv-emo{animation:lvpop .55s cubic-bezier(.3,1.6,.5,1)}
+.veil .cf{z-index:1}
+.cf i{position:absolute;width:var(--s);height:var(--s);margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2);border-radius:2px;
+  border:1.5px solid rgba(255,255,255,.9);animation:burst var(--d) var(--dl) both}
+@keyframes burst{
+  0%{transform:translate(0,0) rotate(0) scale(.3);opacity:1;animation-timing-function:cubic-bezier(.1,.8,.3,1)}
+  32%{transform:translate(var(--dx),var(--dy)) rotate(calc(var(--rot)*.35)) scale(1);opacity:1;animation-timing-function:cubic-bezier(.55,0,.9,.6)}
+  100%{transform:translate(calc(var(--dx)*1.25),calc(var(--dy) + 75vh)) rotate(var(--rot)) scale(.85);opacity:0}}
+.lv-emo{animation:lvpop .55s cubic-bezier(.3,1.6,.5,1) .08s backwards}
 @keyframes lvpop{0%{transform:scale(.3);opacity:0}100%{transform:scale(1);opacity:1}}
 
 /* рік у клітинках */
@@ -115,7 +119,68 @@ button{background:none;border:none;cursor:pointer}
 .rc-l .t{flex:1;min-width:0}
 .rc-l .t small{display:block;color:var(--ink-2);font-size:11.5px;font-weight:600}
 
-@media (prefers-reduced-motion: reduce){.flt,.cf,.lv-emo{animation:none!important}.cf,.flt{display:none}}
+/* ---------- рух ---------- */
+.page.on{animation:pagein .26s cubic-bezier(.2,.8,.2,1)}
+@keyframes pagein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.veil.on{animation:vfade .18s ease-out}
+@keyframes vfade{from{opacity:0}}
+.modal{position:relative;z-index:2}
+.veil.on .modal{animation:mup .34s cubic-bezier(.2,1.25,.35,1)}
+@keyframes mup{from{opacity:0;transform:translateY(26px) scale(.97)}to{opacity:1;transform:none}}
+
+/* галочка: пружинка й кільце кольору стати */
+.check,.cnt{position:relative}
+.check.pop,.cnt.pop{animation:ckpop .42s cubic-bezier(.3,1.7,.5,1)}
+@keyframes ckpop{0%{transform:scale(.6)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
+.check.pop::after,.cnt.pop::after{content:'';position:absolute;inset:-7px;border-radius:12px;border:2px solid var(--ring);
+  animation:ckring .55s ease-out forwards;pointer-events:none}
+@keyframes ckring{from{opacity:.9;transform:scale(.7)}to{opacity:0;transform:scale(1.45)}}
+
+/* картки стат: вміст завжди зверху; при нових балах — поштовх і клітинки, що заповнюються */
+.sc{display:flex;flex-direction:column;justify-content:flex-start}
+.sc.bump{animation:scbump .6s cubic-bezier(.3,1.5,.5,1)}
+@keyframes scbump{0%,100%{transform:none}35%{transform:scale(1.035)}}
+.seg i.fill{animation:segfill .4s cubic-bezier(.3,1.6,.5,1) backwards}
+@keyframes segfill{from{opacity:0;transform:scale(.3)}}
+.sc-lvl.up{display:inline-block;animation:lvlup .7s cubic-bezier(.3,1.6,.5,1)}
+@keyframes lvlup{0%,100%{transform:none}40%{transform:scale(1.7) rotate(-8deg)}}
+
+/* квест виконано: поштовх і відблиск */
+.quest{position:relative;overflow:hidden}
+.quest.justdone{animation:scbump .6s cubic-bezier(.3,1.5,.5,1)}
+.quest.justdone::after{content:'';position:absolute;inset:0;pointer-events:none;transform:translateX(-110%);
+  background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.8) 50%,transparent 70%);animation:shine .9s ease-out .1s forwards}
+html.dk .quest.justdone::after{background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.16) 50%,transparent 70%)}
+@keyframes shine{to{transform:translateX(110%)}}
+
+/* стовпчики тижня виростають при відкритті */
+.wk-bars.grow .wk-col{transform-origin:bottom;animation:wkgrow .55s cubic-bezier(.2,.9,.3,1.15) backwards}
+@keyframes wkgrow{from{transform:scaleY(0)}}
+/* рік у клітинках проявляється хвилею */
+.hm-g.rev .hm-c{animation:hmin .3s ease-out backwards}
+@keyframes hmin{from{opacity:0;transform:scale(.3)}}
+
+/* новий рівень: промені за значком */
+.lv-hero{position:relative;height:92px;display:grid;place-items:center}
+.lv-hero .lv-emo{position:relative;z-index:1}
+.lv-rays{position:absolute;left:50%;top:50%;width:210px;height:210px;margin:-105px 0 0 -105px;border-radius:50%;
+  background:repeating-conic-gradient(from 0deg,var(--c) 0deg 8deg,transparent 8deg 22.5deg);
+  -webkit-mask:radial-gradient(circle,#000 14%,transparent 66%);mask:radial-gradient(circle,#000 14%,transparent 66%);
+  opacity:.3;animation:raysin .7s cubic-bezier(.2,1.2,.4,1) backwards,rays 16s linear .7s infinite}
+@keyframes rays{to{transform:rotate(360deg)}}
+@keyframes raysin{from{opacity:0;transform:scale(.3) rotate(-60deg)}}
+
+/* виконані завдання окремим блоком і прогрес дня */
+.tsub{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--dim);font-weight:700;padding:10px 4px 7px}
+.tsub::after{content:'';flex:1;height:2px;background:var(--edge);border-radius:2px}
+.tprog{height:6px;border-radius:4px;background:var(--edge);overflow:hidden;margin:-2px 4px 11px}
+.tprog i{display:block;height:100%;border-radius:4px;background:var(--accent);transition:width .5s cubic-bezier(.2,.8,.2,1)}
+
+@media (prefers-reduced-motion: reduce){
+  .flt,.cf,.lv-emo,.page.on,.veil.on,.veil.on .modal,.check.pop,.cnt.pop,.check.pop::after,.cnt.pop::after,
+  .sc.bump,.seg i.fill,.sc-lvl.up,.quest.justdone,.quest.justdone::after,.wk-bars.grow .wk-col,.hm-g.rev .hm-c,.lv-rays{animation:none!important}
+  .tprog i{transition:none}
+  .cf,.flt{display:none}}
 .hero{display:flex;gap:14px;align-items:center;margin-bottom:9px}
 .hero .txt{flex:1;min-width:0}
 .hero h1{font-family:var(--disp);font-size:20px;font-weight:600;line-height:1.25}
@@ -142,6 +207,7 @@ button{background:none;border:none;cursor:pointer}
 .quest .qm{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:7px}
 .quest .qx{font-family:var(--disp);font-size:13px;font-weight:600;color:var(--accent);flex:none;margin-top:2px}
 .quest.qdone .qx{color:var(--dim)}
+.quest.qdone .check{color:#fff}
 .qrow{display:flex;align-items:center;gap:8px}
 .qlist{display:flex;flex-direction:column;gap:7px;max-height:46vh;overflow:auto;margin-top:4px;padding-right:2px}
 .qi{display:flex;gap:9px;align-items:flex-start;background:var(--field);border:2px solid var(--edge);
@@ -279,9 +345,9 @@ button{background:none;border:none;cursor:pointer}
   text-transform:uppercase;margin-top:10px}
 .fmodal .tx{font-size:16px;font-weight:600;line-height:1.6;margin-top:11px;color:var(--fort-tx)}
 
-#toast{position:fixed;left:50%;bottom:20px;transform:translate(-50%,18px);background:var(--card);
+#toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translate(-50%,18px) scale(.96);background:var(--card);
   border:2px solid var(--edge-2);box-shadow:0 3px 0 var(--edge-2);padding:9px 15px;border-radius:11px;
-  font-size:13px;font-weight:700;opacity:0;transition:.22s;pointer-events:none;z-index:80;max-width:88vw;text-align:center}
+  font-size:13px;font-weight:700;opacity:0;transition:opacity .2s,transform .32s cubic-bezier(.2,1.4,.4,1);pointer-events:none;z-index:80;max-width:88vw;text-align:center}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 
 .wk{margin-bottom:9px;padding:12px 14px}
@@ -394,6 +460,7 @@ button{background:none;border:none;cursor:pointer}
   <section class="page" data-p="tasks">
     <div class="quest" id="questCard" style="display:none"></div>
     <div class="sh"><h2>Завдання</h2><span class="n" id="taskCount"></span><button id="btnNewTask">+ нове</button></div>
+    <div class="tprog" id="taskProg"><i></i></div>
     <div class="filters" id="filters"></div>
     <div class="sortrow" id="sortRow"></div>
     <div id="taskList"></div>
@@ -411,7 +478,7 @@ button{background:none;border:none;cursor:pointer}
 </div>
 
 <nav class="nav">
-  <button class="nv on" data-p="map"><span class="e">🔮</span>Мапа</button>
+  <button class="nv on" data-p="map"><span class="e">🗺️</span>Мапа</button>
   <button class="nv" data-p="tasks"><span class="e">✓</span>Завдання<i class="dot" id="navDot"></i></button>
   <button class="nv" data-p="bonus"><span class="e">🏆</span>Досягнення</button>
 </nav>
@@ -1335,11 +1402,14 @@ function questSyncLink(){
 
 function renderQuest(){
   const c=document.getElementById('questCard'),r=S.questRef;
-  if(!r){c.style.display='none';return}
+  if(!r){c.style.display='none';QUEST_WAS_DONE=null;return}
   c.style.display='';
   const goal=Math.max(1,r.goal||1),prog=Math.min(goal,S.questProg||0);
-  const done=prog>=goal;
+  const done=prog>=goal||(r.kind==='collect'&&questCollected().length>=goal);
   c.classList.toggle('qdone',done);
+  if(QUEST_WAS_DONE===false&&done&&!REDUCED()){c.classList.remove('justdone');void c.offsetWidth;c.classList.add('justdone')}
+  else if(!done)c.classList.remove('justdone');
+  QUEST_WAS_DONE=done;
   const t=questTask(r),total=questTotal(r);
   if(r.kind==='collect')return renderQuestCollect(c,r);
   let h='<div class="ic">'+esc(r.emo||'⭐')+'</div><div class="qb">';
@@ -1476,8 +1546,9 @@ function renderWeek(){
   if(w.prev||w.total)h+='<span class="wk-d" style="color:'+(dl>0?TV['--good']:(dl<0?TV['--bad']:TV['--dim']))+'">'
     +(dl?((dl>0?'+':'')+dl+' до минулого'):'як минулого тижня')+'</span>';
   h+='<span class="wk-sum">'+(w.total>0?'+':'')+w.total+'</span></div>';
-  h+='<div class="wk-bars">';
-  w.days.forEach(d=>{h+='<div class="wk-col">';
+  const grow=!WK_GROWN&&mapOn()&&!REDUCED();if(mapOn())WK_GROWN=true;
+  h+='<div class="wk-bars'+(grow?' grow':'')+'">';
+  w.days.forEach((d,i)=>{h+='<div class="wk-col"'+(grow?' style="animation-delay:'+(i*55)+'ms"':'')+'>';
     const any=SK.some(k=>dayVal(d,k)>0);
     if(!any)h+='<i style="height:3px;background:'+TV['--hb-empty']+'"></i>';
     else SK.forEach(k=>{const v=Math.max(0,dayVal(d,k));if(!v)return;
@@ -1816,7 +1887,8 @@ function renderAch(){
 function renderTop(){
   const lg=todayLog(),tot=SK.reduce((a,k)=>a+Math.max(0,lg[k]||0),0);
   document.getElementById('hsub').textContent='сумарний рівень '+SK.reduce((a,k)=>a+S.stats[k].lvl,0);
-  document.getElementById('sumTitle').textContent=tot?('+'+tot+' балів сьогодні'):'Сьогодні ще нічого';
+  const fmt=n=>n?('+'+n+' балів сьогодні'):'Сьогодні ще нічого',st=document.getElementById('sumTitle');
+  if(mapOn()||PREV_TOT==null)countTo(st,tot,fmt);else st.textContent=fmt(tot);
   const y=shiftDay(today(),-1),zero=[],risky=[],notes=[];
   SK.forEach(k=>{const r=rhy(k),nm=ST[k].name.toLowerCase(),since=(S.since||{})[k];
     if(r.mode==='day'){if(lg[k]>0)return;
@@ -1836,6 +1908,17 @@ function renderTop(){
     d.textContent=s.emo+' +'+lg[k];c.appendChild(d)})}
 
 const REDUCED=()=>!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+/* анімації на мапі програються, коли мапу видно: так зміни видно, коли повертаєшся до неї */
+const mapOn=()=>{const p=document.querySelector('.page[data-p=map]');return !!(p&&p.classList.contains('on'))};
+const tasksOn=()=>{const p=document.querySelector('.page[data-p=tasks]');return !!(p&&p.classList.contains('on'))};
+let PREV_CARD=null,PREV_TOT=null,WK_GROWN=false,JUST_TOGGLED=null,QUEST_WAS_DONE=null;
+function countTo(el,to,fmt){
+  const from=PREV_TOT;PREV_TOT=to;
+  if(from==null||from===to||REDUCED()||!window.requestAnimationFrame){el.textContent=fmt(to);return}
+  const t0=performance.now(),D=550;
+  const step=now=>{const p=Math.min(1,(now-t0)/D),e=1-Math.pow(1-p,3);
+    el.textContent=fmt(Math.round(from+(to-from)*e));if(p<1)requestAnimationFrame(step)};
+  requestAnimationFrame(step)}
 let RAD_PREV=null,RAD_ANIM=0;
 function ghostDays(){return S.ghost==='m'?30:7}
 function ghostVals(){
@@ -1846,6 +1929,7 @@ function ghostVals(){
 
 function renderRadar(){
   const to=SK.map(k=>lvlNow(k)),gh=ghostVals();
+  if(!mapOn()&&RAD_PREV&&RAD_PREV.length===to.length){cancelAnimationFrame(RAD_ANIM);renderRadarLegend(gh);drawRadar(to,gh);return}
   const from=(RAD_PREV&&RAD_PREV.length===to.length)?RAD_PREV:to;RAD_PREV=to;
   cancelAnimationFrame(RAD_ANIM);
   renderRadarLegend(gh);
@@ -1900,28 +1984,35 @@ function renderRadarLegend(gh){
   lg.innerHTML=h;
   lg.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{S.ghost=b.dataset.g;save();RAD_PREV=null;renderRadar()})}
 
-function segBar(pct,color,line){
-  let h='<div class="seg">';
-  for(let i=0;i<10;i++)h+='<i style="background:'+(pct>=(i+1)*10?color:(pct>i*10?color+'66':TV['--field']))
-    +';border-color:'+line+'"></i>';
+function segBar(pct,color,line,from){
+  let h='<div class="seg">';const lit=Math.ceil(pct/10);
+  for(let i=0;i<10;i++){const anim=from!=null&&i>=from&&i<lit;
+    h+='<i'+(anim?' class="fill"':'')+' style="background:'+(pct>=(i+1)*10?color:(pct>i*10?color+'66':TV['--field']))
+      +';border-color:'+line+(anim?';animation-delay:'+((i-from)*55)+'ms':'')+'"></i>'}
   return h+'</div>'}
 
 function renderGrid(){
   const g=document.getElementById('statGrid'),lg=todayLog();g.innerHTML='';
+  const live=mapOn()&&PREV_CARD&&!REDUCED(),snap={};
   STATS.forEach(s=>{
     const st=S.stats[s.k],nd=need(st.lvl),gain=lg[s.k]||0,pct=Math.min(100,st.xp/nd*100);
+    snap[s.k]={lvl:st.lvl,xp:st.xp,gain};
+    const pv=live?PREV_CARD[s.k]:null;
+    const grew=!!pv&&(st.lvl>pv.lvl||(st.lvl===pv.lvl&&st.xp>pv.xp));
+    const from=grew?(st.lvl>pv.lvl?0:Math.ceil(Math.min(100,pv.xp/nd*100)/10)):null;
     const b=document.createElement('button');
-    b.className='sc'+(filter===s.k?' sel':'');
+    b.className='sc'+(filter===s.k?' sel':'')+(grew?' bump':'');
     b.style.background=s.soft;b.style.borderColor=s.line;b.style.color=s.color;
     b.innerHTML='<div class="sc-top"><span class="sc-emo">'+s.emo+'</span><span class="sc-name">'+s.name+'</span>'
-      +'<span class="sc-lvl">'+st.lvl+'</span></div>'
+      +'<span class="sc-lvl'+(pv&&st.lvl>pv.lvl?' up':'')+'">'+st.lvl+'</span></div>'
       +'<div class="sc-rank">'+rankOf(s.k,st.lvl).full+'</div>'
-      +segBar(pct,s.color,s.line)
+      +segBar(pct,s.color,s.line,from)
       +'<div class="sc-meta"><span>'+st.xp+' / '+nd+'</span><span class="sc-gain" style="color:'
       +(gain>0?s.color:(gain<0?TV['--bad']:TV['--dim']))+'">'+(gain>0?'+'+gain:(gain<0?gain:'—'))+'</span></div>'
       +rhythmRow(s);
     b.onclick=()=>{filter=s.k;render();goTab('tasks')};
-    g.appendChild(b)})}
+    g.appendChild(b)});
+  if(mapOn()||!PREV_CARD)PREV_CARD=snap}
 
 function floatPts(el,txt,color){
   if(!el||REDUCED())return;
@@ -1930,18 +2021,22 @@ function floatPts(el,txt,color){
   f.style.left=(r.left+r.width/2)+'px';f.style.top=(r.top-4)+'px';
   document.body.appendChild(f);setTimeout(()=>f.remove(),950)}
 
-function confetti(cols){
+/* вибух квадратиків від значка; якщо відкрите вікно — за карткою, щоб не лізти на текст */
+function confetti(cols,origin){
   if(REDUCED())return;
   const box=document.createElement('div');box.className='cf';
-  for(let i=0;i<48;i++){const q=document.createElement('i');
-    q.style.left=(Math.random()*100).toFixed(1)+'%';q.style.background=cols[i%cols.length];
-    q.style.width=(6+Math.random()*6).toFixed(0)+'px';
-    q.style.animationDelay=(Math.random()*.35).toFixed(2)+'s';
-    q.style.animationDuration=(1.2+Math.random()*1).toFixed(2)+'s';
-    q.style.setProperty('--dx',((Math.random()-.5)*140).toFixed(0)+'px');
-    q.style.setProperty('--rot',((Math.random()-.5)*720).toFixed(0)+'deg');
+  let x=innerWidth/2,y=innerHeight*.32;
+  if(origin){const r=origin.getBoundingClientRect();if(r.width){x=r.left+r.width/2;y=r.top+r.height/2}}
+  for(let i=0;i<60;i++){const q=document.createElement('i'),a=Math.random()*Math.PI*2,dist=110+Math.random()*190;
+    q.style.left=x+'px';q.style.top=y+'px';q.style.background=cols[i%cols.length];
+    q.style.setProperty('--s',(6+Math.random()*7).toFixed(0)+'px');
+    q.style.setProperty('--dx',(Math.cos(a)*dist).toFixed(0)+'px');
+    q.style.setProperty('--dy',(Math.sin(a)*dist*.8-70).toFixed(0)+'px');
+    q.style.setProperty('--rot',((Math.random()-.5)*900).toFixed(0)+'deg');
+    q.style.setProperty('--d',(1.5+Math.random()*1.1).toFixed(2)+'s');
+    q.style.setProperty('--dl',(Math.random()*.12).toFixed(2)+'s');
     box.appendChild(q)}
-  document.body.appendChild(box);setTimeout(()=>box.remove(),2800)}
+  (veil.classList.contains('on')?veil:document.body).appendChild(box);setTimeout(()=>box.remove(),3000)}
 
 function rhythmRow(s){
   const r=rhy(s.k);
@@ -1992,7 +2087,10 @@ function renderSort(){
     r.appendChild(b)})}
 
 function renderTasks(){
-  const box=document.getElementById('taskList');box.innerHTML='';
+  const box=document.getElementById('taskList');
+  const flip=tasksOn()&&!REDUCED()&&!!Element.prototype.animate,prev={};
+  if(flip)box.querySelectorAll('.task[data-id]').forEach(e=>{prev[e.dataset.id]=e.getBoundingClientRect().top});
+  box.innerHTML='';
   let list=[...S.tasks.filter(t=>filter==='all'||t.stats.includes(filter))];
   const dir=S.sortDir===-1?-1:1;
   if(S.sort==='diff')list.sort((a,b)=>((DORD[a.diff]||0)-(DORD[b.diff]||0))*dir
@@ -2003,11 +2101,25 @@ function renderTasks(){
   document.getElementById('taskCount').textContent=left?left+' лишилось':'усе виконано';
   const nd=document.getElementById('navDot');
   if(nd)nd.classList.toggle('on',S.tasks.some(t=>!t.doneOn));
+  const pr=document.querySelector('#taskProg i');
+  if(pr)pr.style.width=(list.length?Math.round((list.length-left)/list.length*100):0)+'%';
   if(!list.length){box.innerHTML='<div class="empty">Тут поки порожньо.<br>Додай завдання й познач, до яких стат воно належить.</div>';return}
-  list.forEach(t=>box.appendChild(taskRow(t)))}
+  let sub=false;
+  list.forEach(t=>{
+    if(t.doneOn&&!sub){sub=true;const h=document.createElement('div');h.className='tsub';
+      h.textContent='Виконано сьогодні · '+(list.length-left);box.appendChild(h)}
+    box.appendChild(taskRow(t))});
+  if(flip)box.querySelectorAll('.task[data-id]').forEach(e=>{const p0=prev[e.dataset.id];if(p0==null)return;
+    const dy=p0-e.getBoundingClientRect().top;if(Math.abs(dy)<2)return;
+    e.animate([{transform:'translateY('+dy+'px)'},{transform:'none'}],{duration:420,easing:'cubic-bezier(.2,.8,.2,1)'})})}
+
+/* спершу видно сам момент — галочка заповнюється й пружинить, — потім рядок плавно їде у «Виконано» */
+let RENDER_T=0;
+function laterRender(){clearTimeout(RENDER_T);RENDER_T=setTimeout(render,REDUCED()?0:420)}
+function popEl(c,color){c.style.setProperty('--ring',color);c.classList.remove('pop');void c.offsetWidth;c.classList.add('pop')}
 
 function taskRow(t){
-  const el=document.createElement('div');
+  const el=document.createElement('div');el.dataset.id=t.id;
   el.className='task'+(t.doneOn?' done':'')+(t.multi&&t.count?' rep':'');
   const xp=DF[t.diff].xp,c0=ST[t.stats[0]];
   if(t.multi){
@@ -2020,12 +2132,21 @@ function taskRow(t){
     c.textContent=t.count?'×'+t.count:'+';
     if(t.count){c.style.borderColor=c0.color;c.style.background=c0.soft;c.style.color=c0.color}
     c.onclick=()=>{t.count=(t.count||0)+1;t.doneOn=today();award(t.stats,xp);qEvtAdd(t);
-      floatPts(c,'+'+xp,c0.color);save();render()};
+      questSyncLink();questSyncCollect();save();
+      floatPts(c,'+'+xp,c0.color);
+      el.classList.add('rep');c.textContent='×'+t.count;c.classList.add('has');
+      c.style.borderColor=c0.color;c.style.background=c0.soft;c.style.color=c0.color;
+      popEl(c,c0.color);laterRender()};
     el.appendChild(c)}
   else{const c=document.createElement('button');c.className='check';c.textContent='✓';
     if(t.doneOn){c.style.background=c0.color;c.style.borderColor=c0.color}
-    c.onclick=()=>{if(t.doneOn){award(t.stats,-xp);t.doneOn=null;t.count=0;qEvtDel(t)}
-      else{t.doneOn=today();t.count=1;award(t.stats,xp);qEvtAdd(t);floatPts(c,'+'+xp,c0.color)}save();render()};
+    c.onclick=()=>{
+      if(t.doneOn){award(t.stats,-xp);t.doneOn=null;t.count=0;qEvtDel(t);save();render();return}
+      t.doneOn=today();t.count=1;award(t.stats,xp);qEvtAdd(t);
+      questSyncLink();questSyncCollect();save();
+      floatPts(c,'+'+xp,c0.color);
+      el.classList.add('done');c.style.background=c0.color;c.style.borderColor=c0.color;
+      popEl(c,c0.color);laterRender()};
     el.appendChild(c)}
   const b=document.createElement('div');b.className='tb';
   b.innerHTML='<div class="tn">'+esc(t.name)+'</div>';
@@ -2070,13 +2191,13 @@ function flushLevels(){
   const e=LVQ.shift(),s=ST[e.k],pool=FLAVOR[e.k];
   const fl=pool[Math.min(Math.max(1,e.lvl),pool.length)-1]||'';
   let h='<div class="lv">';
-  h+='<div class="lv-emo">'+e.now.emo+'</div>';
+  h+='<div class="lv-hero"><div class="lv-rays" style="--c:'+s.color+'"></div><div class="lv-emo">'+e.now.emo+'</div></div>';
   h+='<div class="lv-stat" style="color:'+s.color+'">'+s.emo+' '+s.name+' · рівень '+e.lvl+'</div>';
   h+='<div class="lv-now" style="color:'+s.color+'">'+esc(e.now.name)+'</div>';
   if(fl)h+='<div class="lv-fl lv-long">'+richText(fl)+'</div>';
   h+='</div>';
   h+='<div class="mrow"><button class="btn pri" id="lvOk">Далі</button></div>';
-  open(h);confetti([s.color,s.line,TV['--rad-line'],s.color,TV['--card']]);
+  open(h);confetti([s.color,s.line,TV['--rad-line'],s.color,'#ffffff'],modal.querySelector('.lv-emo'));
   modal.querySelector('#lvOk').onclick=()=>{close();setTimeout(flushLevels,180)}}
 
 function flushAch(){
@@ -2190,20 +2311,20 @@ function heatmapHtml(f){
   const col=f==='all'?TV['--rad-line']:ST[f].color;
   const lvl=v=>!v?0:Math.min(4,Math.max(1,Math.ceil(v/Math.max(1,mx)*4)));
   const shade=[TV['--hb-empty'],hexA(col,.3),hexA(col,.55),hexA(col,.8),col];
-  let g='',prevM='',tot=0,act=0;
-  for(let w=start;w<=end;w=shiftDay(w,7)){
+  let g='',prevM='',tot=0,act=0,wi=-1;
+  for(let w=start;w<=end;w=shiftDay(w,7)){wi++;
     const m=w.slice(5,7);
     g+='<span class="hm-m">'+(m!==prevM&&+w.slice(8)<=7?MONTHS_S[+m-1]:'')+'</span>';prevM=m;
     for(let i=0;i<7;i++){const d=shiftDay(w,i);
       if(d>t){g+='<span></span>';continue}
       const v=dayPts(d,f),pd=f==='all'?0:penOf(d,f);tot+=v;if(v>0)act++;
       g+='<button class="hm-c'+(pd?' pd':'')+(d===t?' td':'')+'" data-d="'+d+'" style="background:'+shade[lvl(v)]
-        +'" aria-label="'+d+'"></button>'}}
+        +';animation-delay:'+Math.max(0,wi-38)*22+'ms" aria-label="'+d+'"></button>'}}
   const lg='<div class="hm-lg">менше '+shade.map(c=>'<i style="background:'+c+'"></i>').join('')+' більше'
     +(f==='all'?'':'<span style="margin-left:auto;display:flex;align-items:center;gap:4px"><i style="background:'+TV['--bad']
     +';width:6px;height:6px;border-radius:50%"></i>штраф</span>')+'</div>';
   return{html:'<div class="hm"><div class="hm-d"><span></span><span>пн</span><span></span><span>ср</span><span></span>'
-    +'<span>пт</span><span></span><span>нд</span></div><div class="hm-s"><div class="hm-g">'+g+'</div></div></div>'+lg,tot,act}}
+    +'<span>пт</span><span></span><span>нд</span></div><div class="hm-s"><div class="hm-g rev">'+g+'</div></div></div>'+lg,tot,act}}
 
 function dayDetail(iso){
   const parts=SK.filter(k=>earned(iso,k)>0).map(k=>ST[k].emo+' '+earned(iso,k));
@@ -2463,7 +2584,8 @@ function sumToTen(){let s=0;for(let l=1;l<10;l++)s+=60+40*(l-1)+6*(l-1)*(l-1);re
 document.querySelectorAll('.nv').forEach(n=>n.onclick=()=>{
   document.querySelectorAll('.nv').forEach(x=>x.classList.remove('on'));n.classList.add('on');
   document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.dataset.p===n.dataset.p));
-  window.scrollTo({top:0,behavior:'instant'})});
+  window.scrollTo({top:0,behavior:'instant'});
+  if(n.dataset.p==='map'){renderTop();renderRadar();renderGrid();renderWeek()}});
 
 function goTab(p){const n=document.querySelector('.nv[data-p='+p+']');if(n)n.click()}
 
