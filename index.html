@@ -105,6 +105,25 @@ button{background:none;border:none;cursor:pointer}
 .hm-c.pd::after{content:'';position:absolute;right:1px;bottom:1px;width:4px;height:4px;border-radius:50%;background:var(--bad)}
 .hm-c.td{outline:2px solid var(--ink-2);outline-offset:1px}
 .hm-c.sel{outline:2px solid var(--accent);outline-offset:1px}
+.htabs{display:flex;border:2px solid var(--edge);border-radius:11px;overflow:hidden;background:var(--soft);margin-bottom:12px}
+.htabs button{flex:1;font-family:var(--disp);font-size:13.5px;font-weight:500;padding:7px 4px;color:var(--ink-2)}
+.htabs button.on{background:var(--card);color:var(--accent);box-shadow:0 2px 0 var(--edge)}
+.ac-sum{display:flex;align-items:center;gap:12px;margin-top:13px;font-size:12.5px;color:var(--ink-2);font-weight:600;line-height:1.5}
+.ac-sum b{color:var(--ink)}
+.ac-n{font-family:var(--disp);font-size:34px;font-weight:600;color:var(--rad-line);line-height:1;flex:none}
+.ac-note{font-size:11.5px;color:var(--dim);font-weight:600;line-height:1.5;margin-top:8px}
+.ac-list{display:flex;flex-direction:column;gap:10px;margin-top:13px}
+.ac-t{display:flex;align-items:baseline;gap:8px}
+.ac-nm{flex:1;min-width:0;font-size:13.5px;font-weight:700;line-height:1.35}
+.ac-nm i{font-style:normal;color:var(--dim);font-weight:600}
+.ac-c{font-family:var(--disp);font-size:15px;font-weight:600;flex:none}
+.ac-b{height:6px;border-radius:4px;background:var(--hb-empty);margin-top:4px;overflow:hidden}
+.ac-b i{display:block;height:100%;border-radius:4px;transform-origin:left;animation:acgrow .5s cubic-bezier(.2,.9,.3,1) backwards}
+@keyframes acgrow{from{transform:scaleX(0)}}
+.ac-m{font-size:11px;color:var(--dim);font-weight:700;margin-top:3px}
+.ac-never{display:flex;flex-wrap:wrap;gap:5px}
+.ac-never span{font-size:12px;font-weight:600;color:var(--ink-2);background:var(--soft);border:2px solid var(--edge);border-radius:8px;padding:2px 8px}
+@media (prefers-reduced-motion: reduce){.ac-b i{animation:none}}
 .hm-x{font-size:12px;color:var(--ink-2);font-weight:600;line-height:1.55;min-height:38px;margin-top:6px}
 .hm-x b{color:var(--ink)}
 .hm-lg{display:flex;align-items:center;gap:3px;font-size:10px;color:var(--dim);font-weight:700;margin-top:4px}
@@ -852,7 +871,7 @@ const FORTUNES=[
 function rankOf(k,lvl){const a=RANKS[k],s=a[Math.min(a.length,Math.max(1,lvl))-1];
   const i=s.indexOf(' ');return{emo:s.slice(0,i),name:s.slice(i+1),full:s}}
 
-const blank={v:7,lastDay:null,penalty:5,pace:1,theme:'sky',sort:'def',sortDir:1,
+const blank={v:7,done:{},tnames:{},doneSince:null,lastDay:null,penalty:5,pace:1,theme:'sky',sort:'def',sortDir:1,
   pen:{},bon:{},rhythm:{},rhyHist:{},penHist:[],since:{},gauge:{},startDay:null,penThrough:null,lastExport:null,
   qDone:{},ghost:'w',recapSeen:null,recapPending:null,
   tasks:[],bonuses:[],quests:[],log:{},stats:{},ach:{},achInit:0,autoAch:1,
@@ -959,6 +978,13 @@ function normalize(m,d){
   if(!m.log||typeof m.log!=='object')m.log={};
   if(!Array.isArray(m.tasks))m.tasks=[];
   migrate(m,d);
+  /* журнал дій: який саме таск і скільки разів за день. Раніше не вівся —
+     починаємо з сьогоднішніх відміток. */
+  if(!(d&&d.done&&typeof d.done==='object')){m.done={};
+    const t=today();m.tasks.forEach(x=>{if(x&&x.doneOn===t&&x.count>0)(m.done[t]=m.done[t]||{})[x.id]=x.count})}
+  if(!m.tnames||typeof m.tnames!=='object')m.tnames={};
+  m.tasks.forEach(x=>{if(x&&x.id)m.tnames[x.id]=x.name});
+  if(!m.doneSince)m.doneSince=Object.keys(m.done).sort()[0]||today();
   if(!m.ach)m.ach={};
   if(!Array.isArray(m.bonuses))m.bonuses=[];
   m.bonuses.forEach(b=>{if(b.repeat==null)b.repeat=false;if(b.count==null)b.count=0});
@@ -1261,7 +1287,7 @@ function checkAch(){
 /* Скидає тільки прогрес. Завдання, мої досягнення, налаштування й теми лишаються. */
 function resetProgress(){
   SK.forEach(k=>{S.stats[k]={xp:0,lvl:1,total:0,streak:0,best:0,wbest:0,miss:0}});
-  S.log={};S.ach={};S.achInit=0;S.lastDay=null;
+  S.log={};S.ach={};S.achInit=0;S.lastDay=null;S.done={};S.doneSince=today();
   S.pen={};S.bon={};S.qDone={};S.recapPending=null;S.recapSeen=weekStart(today());
   S.startDay=today();S.penThrough=shiftDay(today(),-1);S.since={};S.gauge={};
   SK.forEach(k=>S.since[k]=today());migrate(S,null);
@@ -1489,7 +1515,7 @@ function rollover(){
   const r=reconcile();
   advanceGauges();
   const cut=shiftDay(t,-400);
-  ['log','pen','bon','qDone'].forEach(f=>Object.keys(S[f]||{}).forEach(k=>{if(k<cut)delete S[f][k]}));
+  ['log','pen','bon','qDone','done'].forEach(f=>Object.keys(S[f]||{}).forEach(k=>{if(k<cut)delete S[f][k]}));
   S.lastDay=t;save();
   const msg=[];
   if(newDay&&r.lost)msg.push('штраф −'+r.lost+' балів за пропущене');
@@ -2115,6 +2141,14 @@ function renderTasks(){
 
 /* спершу видно сам момент — галочка заповнюється й пружинить, — потім рядок плавно їде у «Виконано» */
 let RENDER_T=0;
+function logDone(t,delta,iso){
+  iso=iso||today();if(!S.done)S.done={};if(!S.tnames)S.tnames={};
+  const d=S.done[iso]||(S.done[iso]={});
+  d[t.id]=Math.max(0,(d[t.id]||0)+delta);if(!d[t.id])delete d[t.id];
+  if(!Object.keys(d).length)delete S.done[iso];
+  S.tnames[t.id]=t.name;
+  if(!S.doneSince||iso<S.doneSince)S.doneSince=iso}
+
 function laterRender(){clearTimeout(RENDER_T);RENDER_T=setTimeout(render,REDUCED()?0:420)}
 function popEl(c,color){c.style.setProperty('--ring',color);c.classList.remove('pop');void c.offsetWidth;c.classList.add('pop')}
 
@@ -2125,13 +2159,13 @@ function taskRow(t){
   if(t.multi){
     if(t.count){const mn=document.createElement('button');mn.className='mn';mn.textContent='−';
       mn.title='Прибрати один раз';
-      mn.onclick=()=>{if(!t.count)return;t.count--;award(t.stats,-xp);qEvtDel(t);
+      mn.onclick=()=>{if(!t.count)return;t.count--;award(t.stats,-xp);qEvtDel(t);logDone(t,-1);
         if(!t.count)t.doneOn=null;save();render()};
       el.appendChild(mn)}
     const c=document.createElement('button');c.className='cnt'+(t.count?' has':'');
     c.textContent=t.count?'×'+t.count:'+';
     if(t.count){c.style.borderColor=c0.color;c.style.background=c0.soft;c.style.color=c0.color}
-    c.onclick=()=>{t.count=(t.count||0)+1;t.doneOn=today();award(t.stats,xp);qEvtAdd(t);
+    c.onclick=()=>{t.count=(t.count||0)+1;t.doneOn=today();award(t.stats,xp);qEvtAdd(t);logDone(t,1);
       questSyncLink();questSyncCollect();save();
       floatPts(c,'+'+xp,c0.color);
       el.classList.add('rep');c.textContent='×'+t.count;c.classList.add('has');
@@ -2141,8 +2175,8 @@ function taskRow(t){
   else{const c=document.createElement('button');c.className='check';c.textContent='✓';
     if(t.doneOn){c.style.background=c0.color;c.style.borderColor=c0.color}
     c.onclick=()=>{
-      if(t.doneOn){award(t.stats,-xp);t.doneOn=null;t.count=0;qEvtDel(t);save();render();return}
-      t.doneOn=today();t.count=1;award(t.stats,xp);qEvtAdd(t);
+      if(t.doneOn){award(t.stats,-xp);t.doneOn=null;t.count=0;qEvtDel(t);logDone(t,-1);save();render();return}
+      t.doneOn=today();t.count=1;award(t.stats,xp);qEvtAdd(t);logDone(t,1);
       questSyncLink();questSyncCollect();save();
       floatPts(c,'+'+xp,c0.color);
       el.classList.add('done');c.style.background=c0.color;c.style.borderColor=c0.color;
@@ -2269,7 +2303,7 @@ function openTask(t){
   modal.querySelectorAll('#tRetro .rd').forEach(c=>{let n=0;
     c.onclick=()=>{const iso=c.dataset.d,xp=DF[dr.diff].xp;
       const keys=SK.filter(k=>dr.stats.includes(k));
-      retroAward(keys,xp,iso);
+      retroAward(keys,xp,iso);logDone(t,1,iso);
       n++;c.classList.add('hit');c.textContent=retroLabel(iso,+c.dataset.i)+' +'+(xp*n);
       save();syncStreaks();checkAch();renderTop();renderRadar();renderWeek();renderGrid();renderAch();
       toast('Зараховано за '+iso.slice(8)+'.'+iso.slice(5,7))}});
@@ -2280,7 +2314,7 @@ function openTask(t){
   modal.querySelector('#tSave').onclick=()=>{
     const n=modal.querySelector('#tName').value.trim();if(!n){toast('Впиши назву');return}
     t.name=n;t.stats=SK.filter(k=>dr.stats.includes(k));t.diff=dr.diff;t.multi=dr.multi;t.once=dr.once;
-    t.quest=dr.quest;
+    t.quest=dr.quest;if(S.tnames)S.tnames[t.id]=t.name;
     if(isNew)S.tasks.unshift(t);
     const hidden=filter!=='all'&&!t.stats.includes(filter);
     if(hidden)filter='all';
@@ -2336,7 +2370,7 @@ function dayDetail(iso){
 
 function openHistory(f){
   f=f||'all';
-  let h='<h3>Рік у клітинках</h3>';
+  let h=histTabs('cal');
   h+='<div class="mchips" id="hF"><button class="mchip'+(f==='all'?' on':'')+'" data-k="all">усі</button>'
     +STATS.map(s=>'<button class="mchip'+(f===s.k?' on':'')+'" data-k="'+s.k+'" title="'+s.name+'"'
       +(f===s.k?' style="color:'+s.color+';border-color:'+s.line+';background:'+s.soft+'"':'')+'>'+s.emo+'</button>').join('')+'</div>';
@@ -2354,6 +2388,7 @@ function openHistory(f){
     +'<button class="btn pri" id="hClose">Закрити</button></div>';
   open(h);
   const sc=modal.querySelector('.hm-s');if(sc)sc.scrollLeft=sc.scrollWidth;
+  bindHistTabs();
   modal.querySelectorAll('#hF .mchip').forEach(c=>c.onclick=()=>openHistory(c.dataset.k));
   modal.querySelectorAll('.hm-c').forEach(c=>c.onclick=()=>{
     modal.querySelectorAll('.hm-c.sel').forEach(x=>x.classList.remove('sel'));c.classList.add('sel');
@@ -2363,6 +2398,66 @@ function openHistory(f){
     showRecap(ws,true)};
   modal.querySelector('#hClose').onclick=close}
 document.getElementById('btnHist').onclick=()=>openHistory('all');
+
+const MONTHS_N=['січень','лютий','березень','квітень','травень','червень','липень','серпень','вересень','жовтень','листопад','грудень'];
+function actPeriod(k){
+  const t=today(),ws=weekStart(t),m0=t.slice(0,8)+'01';
+  if(k==='pw')return{from:shiftDay(ws,-7),to:shiftDay(ws,-1),label:weekRange(shiftDay(ws,-7))};
+  if(k==='m')return{from:m0,to:t,label:MONTHS_N[+t.slice(5,7)-1]};
+  if(k==='pm'){const to=shiftDay(m0,-1),from=to.slice(0,8)+'01';return{from,to,label:MONTHS_N[+from.slice(5,7)-1]}}
+  return{from:ws,to:t,label:weekRange(ws)}}
+
+function actStats(from,to,f){
+  const by={};let total=0;const active=new Set();
+  for(let d=from;d<=to;d=shiftDay(d,1)){const day=(S.done||{})[d];if(!day)continue;
+    Object.keys(day).forEach(id=>{const n=day[id];if(!(n>0))return;
+      const t=(S.tasks||[]).find(x=>x.id===id);
+      if(f!=='all'&&!(t&&t.stats.includes(f)))return;
+      const r=by[id]||(by[id]={id,t,name:t?t.name:((S.tnames||{})[id]||'—'),n:0,days:0});
+      r.n+=n;r.days++;total+=n;active.add(d)})}
+  const rows=Object.values(by).sort((a,b)=>b.n-a.n||b.days-a.days||a.name.localeCompare(b.name,'uk'));
+  return{rows,total,active:active.size}}
+
+function openActs(per,f){
+  per=per||'w';f=f||'all';
+  const P=actPeriod(per),st=actStats(P.from,P.to,f);
+  const span=Math.round((new Date(P.to)-new Date(P.from))/864e5)+1;
+  let h=histTabs('acts');
+  h+='<div class="mchips" id="aP">'+[['w','цей тиждень'],['pw','минулий'],['m','цей місяць'],['pm','минулий місяць']]
+    .map(o=>'<button class="mchip'+(per===o[0]?' on':'')+'" data-k="'+o[0]+'">'+o[1]+'</button>').join('')+'</div>';
+  h+='<div class="mchips" id="aF" style="margin-top:7px"><button class="mchip'+(f==='all'?' on':'')+'" data-k="all">усі</button>'
+    +STATS.map(s=>'<button class="mchip'+(f===s.k?' on':'')+'" data-k="'+s.k+'" title="'+s.name+'"'
+      +(f===s.k?' style="color:'+s.color+';border-color:'+s.line+';background:'+s.soft+'"':'')+'>'+s.emo+'</button>').join('')+'</div>';
+  const w5=st.total%10,w100=st.total%100,dw=w5===1&&w100!==11?'дія':(w5>=2&&w5<=4&&(w100<12||w100>14)?'дії':'дій');
+  h+='<div class="ac-sum"><span class="ac-n">'+st.total+'</span><span><b>'+dw+'</b> '+(per==='m'||per==='pm'?'за '+P.label:P.label)
+    +'<br>різних справ — <b>'+st.rows.length+'</b>, днів із діями — <b>'+st.active+' з '+span+'</b></span></div>';
+  if(S.doneSince&&S.doneSince>P.from)h+='<div class="ac-note">Окремі дії рахуються з '+dmy(S.doneSince)
+    +'. Те, що було раніше, застосунок ще не записував.</div>';
+  if(!st.rows.length)h+='<div class="empty" style="margin-top:10px">За цей час поки нічого не відмічено.</div>';
+  else{const mx=st.rows[0].n;h+='<div class="ac-list">';
+    st.rows.forEach((r,i)=>{const ks=r.t?r.t.stats:[],c0=ks.length?ST[ks[0]]:null,col=c0?c0.color:TV['--accent'];
+      h+='<div class="ac-r"><div class="ac-t"><span class="ac-nm">'+esc(r.name)+(r.t?'':' <i>(видалено)</i>')+'</span>'
+        +'<span class="ac-c" style="color:'+col+'">×'+r.n+'</span></div>'
+        +'<div class="ac-b"><i style="width:'+Math.max(4,Math.round(r.n/mx*100))+'%;background:'+col
+        +';animation-delay:'+Math.min(i,12)*35+'ms"></i></div>'
+        +'<div class="ac-m">'+ks.map(k=>ST[k].emo).join(' ')+(ks.length?' · ':'')
+        +(r.days===1?'в один день':'у '+r.days+' '+dayWord(r.days))+'</div></div>'});
+    h+='</div>'}
+  const never=(S.tasks||[]).filter(t=>(f==='all'||t.stats.includes(f))&&!st.rows.some(r=>r.id===t.id));
+  if(never.length&&st.rows.length)h+='<div class="f" style="margin-top:12px"><label>Жодного разу за цей час</label>'
+    +'<div class="ac-never">'+never.map(t=>'<span>'+esc(t.name)+'</span>').join('')+'</div></div>';
+  h+='<div class="mrow"><button class="btn pri" id="aClose">Закрити</button></div>';
+  open(h);
+  bindHistTabs();
+  modal.querySelectorAll('#aP .mchip').forEach(c=>c.onclick=()=>openActs(c.dataset.k,f));
+  modal.querySelectorAll('#aF .mchip').forEach(c=>c.onclick=()=>openActs(per,c.dataset.k));
+  modal.querySelector('#aClose').onclick=close}
+function dayWord(n){const a=n%10,b=n%100;return a===1&&b!==11?'день':(a>=2&&a<=4&&(b<12||b>14)?'дні':'днів')}
+function histTabs(cur){
+  return '<div class="htabs" id="hTabs"><button data-t="cal" class="'+(cur==='cal'?'on':'')+'">Рік у клітинках</button>'
+    +'<button data-t="acts" class="'+(cur==='acts'?'on':'')+'">Що я робила</button></div>'}
+function bindHistTabs(){modal.querySelectorAll('#hTabs button').forEach(b=>b.onclick=()=>{
+  if(b.dataset.t==='acts')openActs('w','all');else openHistory('all')})}
 
 let RECAP_HOLD=true;
 function maybeRecap(){
@@ -2395,6 +2490,8 @@ function showRecap(ws,fromHistory){
     .filter(x=>x.b>x.a);
   if(ups.length)L('🆙','Нові рівні',ups.map(x=>ST[x.k].emo+' '+ST[x.k].name+' → '+x.b+' ('+rankOf(x.k,x.b).name+')').join(', '));
   const qd=days.filter(d=>S.qDone&&S.qDone[d]).length;
+  const top=actStats(ws,last,'all').rows.slice(0,3);
+  if(top.length)L('🔁','Найчастіше',top.map(r=>esc(r.name)+' ×'+r.n).join(', '));
   L('🎯','Квест дня — '+qd+' з '+days.length);
   const ach=Object.values(S.ach||{}).filter(d=>d>=ws&&d<=we).length;
   if(ach)L('🏅','Нагород за тиждень — '+ach);
