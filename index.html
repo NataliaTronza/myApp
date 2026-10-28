@@ -521,8 +521,11 @@ const STATS=[
 ];
 STATS.forEach(s=>s.base={color:s.color,soft:s.soft,line:s.line});
 const SK=STATS.map(s=>s.k), ST=Object.fromEntries(STATS.map(s=>[s.k,s]));
+/* Шкала складності. Назви зберігаються у завданнях за ключем, тож «складно» лишається «складно»,
+   змінюється лише кількість балів. */
 const DIFF=[{k:'vlow',xp:2,label:'дуже легко'},{k:'low',xp:5,label:'легко'},{k:'mid',xp:10,label:'середньо'},
- {k:'high',xp:20,label:'складно'},{k:'vhigh',xp:40,label:'дуже складно'},{k:'epic',xp:100,label:'епічно'}];
+ {k:'high',xp:15,label:'складно'},{k:'vhigh',xp:20,label:'дуже складно'},{k:'hero',xp:30,label:'героїчно'},
+ {k:'epic',xp:50,label:'епічно'}];
 const DF=Object.fromEntries(DIFF.map(d=>[d.k,d]));
 const KEY='staty.v1';
 const PREV_KEY=KEY+'.prev';
